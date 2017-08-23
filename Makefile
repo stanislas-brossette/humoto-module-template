@@ -13,7 +13,7 @@ all:
 					-DHUMOTO_BRIDGE_qpOASES=ON \
 					-DHUMOTO_BRIDGE_config_yaml=ON \
 					-DHUMOTO_MODULE_example=ON \
-					../humoto/
+					~/profiles/devel/src/humoto/humoto-core/
 	cd build; ${MAKE} ${MAKE_FLAGS}
 
 tests: all
