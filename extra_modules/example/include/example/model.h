@@ -19,6 +19,8 @@ namespace humoto
             public:
                 /// state of the model
                 humoto::example::ModelState       state_;
+                // Number of state variables
+                size_t Ns_ = 9;
 
 
             public:
@@ -38,8 +40,8 @@ namespace humoto
                 void    updateState(const humoto::ModelState &model_state)
                 {
                     const humoto::example::ModelState &state = dynamic_cast <const humoto::example::ModelState &> (model_state);
-
                     state_.com_state_ = state.com_state_;
+                    //state_.com_state_ = A*state.com_state_[only xy]  + B*control;
                 }
 
 

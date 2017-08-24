@@ -20,7 +20,6 @@
 #include "humoto/qpoases.h"
 #include "humoto/example.h"
 
-#include "utilities.h"
 
 HUMOTO_INITIALIZE_GLOBAL_LOGGER(std::cout);
 
@@ -45,10 +44,7 @@ int main(int argc, char **argv)
         humoto::qpoases::Solver                   solver(solver_parameters);
         humoto::qpoases::Solution                 solution;
 
-
-        humoto::example::WalkParameters             walk_parameters;
-        humoto::walking::StanceFiniteStateMachine   stance_fsm(walk_parameters);
-
+        humoto::example::ProblemParameters             problem_parameters;
 
         // model representing the controlled system
         humoto::example::Model                      model;
@@ -56,30 +52,32 @@ int main(int argc, char **argv)
 
 
         // control problem, which is used to construct an optimization problem
-        humoto::example::MPCforWPG                  wpg;
+        humoto::example::SimpleMPC                  control_problem(problem_parameters);
 
 
         setupHierarchy_v0(opt_problem);
 
 
-        for (unsigned int i = 0;; ++i)
+        for (unsigned int i = 0; i < 1000; ++i)
         {
             // -------------------------------------------------
-            if (wpg.update(model, stance_fsm, walk_parameters) != humoto::ControlProblemStatus::OK)
+            if (control_problem.update(model, problem_parameters) != humoto::ControlProblemStatus::OK)
             {
                 break;
             }
-            opt_problem.form(solution, model, wpg);
+            opt_problem.form(solution, model, control_problem);
             solver.solve(solution, opt_problem);
+            //std::cout << "Solution: " << std::endl;
+            //solution.log();
             // -------------------------------------------------
 
             // -------------------------------------------------
-            stance_fsm.shiftTime(100);
-            model_state = wpg.getNextModelState(solution, stance_fsm, model);
+            //stance_fsm.shiftTime(100);
+            model_state = control_problem.getNextModelState(solution, model);
             model.updateState(model_state);
             // -------------------------------------------------
+            std::cout << "model.state_.getStateVector(): " << model.state_.getStateVector() << std::endl;
 
-            break;
         }
         HUMOTO_LOG_RAW("Done.");
     }

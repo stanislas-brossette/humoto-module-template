@@ -24,6 +24,9 @@ namespace humoto
 
                 void setDefaults()
                 {
+                  com_state_.position_ << 0, 0, 0;
+                  com_state_.velocity_ << 0, 0, 0;
+                  com_state_.acceleration_ << 0, 0, 0;
                 }
 
             public:
@@ -40,8 +43,26 @@ namespace humoto
                  */
                 ModelState()
                 {
+                  setDefaults();
                 }
 
+
+                // Returns the current state in vector form:
+                // x dx ddx y dy ddy z dz ddz
+                etools::Vector9 getStateVector()
+                {
+                    etools::Vector9 currentState;
+                    currentState(0) = com_state_.position_(0);
+                    currentState(1) = com_state_.velocity_(0);
+                    currentState(2) = com_state_.acceleration_(0);
+                    currentState(3) = com_state_.position_(1);
+                    currentState(4) = com_state_.velocity_(1);
+                    currentState(5) = com_state_.acceleration_(1);
+                    currentState(6) = com_state_.position_(2);
+                    currentState(7) = com_state_.velocity_(2);
+                    currentState(8) = com_state_.acceleration_(2);
+                    return currentState;
+                }
 
 
                 /**
