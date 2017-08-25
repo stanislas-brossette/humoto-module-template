@@ -76,9 +76,10 @@ int main(int argc, char **argv)
             model_state = control_problem.getNextModelState(solution, model);
             model.updateState(model_state);
             // -------------------------------------------------
-            std::cout << "model.state_.getStateVector(): " << model.state_.getStateVector() << std::endl;
-
         }
+        control_problem.stateHistory().plot();
+        std::string command = "python plotFile.py";
+        system(command.c_str());
         HUMOTO_LOG_RAW("Done.");
     }
     catch (const std::exception &e)

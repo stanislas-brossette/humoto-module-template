@@ -16,6 +16,7 @@ namespace humoto
                 etools::Vector9 currentState_;
                 const ProblemParameters& pbParams_;
                 etools::SelectionMatrix velocity_selector_;
+                StateHistory stateHistory_;
 
                 etools::Matrix9 computeA()
                 {
@@ -51,7 +52,8 @@ namespace humoto
                  */
                 SimpleMPC(const ProblemParameters& pbParam)
                   : pbParams_(pbParam),
-                  velocity_selector_(3,1)
+                  velocity_selector_(3,1),
+                  stateHistory_(pbParams_.t_)
                 {
                   computeA();
                   computeB();
@@ -63,6 +65,7 @@ namespace humoto
                 const Eigen::MatrixXd& Uu() const {return Uu_;}
                 const Eigen::MatrixXd& Ux() const {return Ux_;}
                 const etools::Vector9& currentState() const { return currentState_;}
+                const StateHistory& stateHistory()const{return stateHistory_;}
                 
 
 
@@ -133,6 +136,9 @@ namespace humoto
                     state.com_state_.position_(2) = newState(6);
                     state.com_state_.velocity_(2) = newState(7);
                     state.com_state_.acceleration_(2) = newState(8);
+
+                    stateHistory_.addStateAndControl(newState, solution.x_.segment(0,3));
+
                     return(state);
                 }
 

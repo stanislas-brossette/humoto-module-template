@@ -30,6 +30,7 @@ namespace humoto
 
 #include "humoto/walking.h"
 
+#include "tools/history.h"
 #include "example/common.h"
 #include "example/model-state.h"
 #include "example/model.h"
