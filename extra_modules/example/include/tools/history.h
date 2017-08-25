@@ -15,6 +15,20 @@ namespace humoto
           : timeStep_(timeStep)
         {
         }
+        void setMinMax(const Eigen::VectorXd& xMin,
+            const Eigen::VectorXd& xMax,
+            const Eigen::VectorXd& yMin,
+            const Eigen::VectorXd& yMax,
+            const Eigen::VectorXd& zMin,
+            const Eigen::VectorXd& zMax)
+        {
+          xMin_ = xMin;
+          xMax_ = xMax;
+          yMin_ = yMin;
+          yMax_ = yMax;
+          zMin_ = zMin;
+          zMax_ = zMax;
+        }
         void addStateAndControl(const etools::Vector9 state, const etools::Vector3 control)
         {
           Eigen::Vector3d position, velocity, acceleration;
@@ -73,6 +87,12 @@ namespace humoto
           logFile << "x = np.array(" << positions.col(0).transpose().format(cleanFmt) << ")\n";
           logFile << "y = np.array(" << positions.col(1).transpose().format(cleanFmt) << ")\n";
           logFile << "z = np.array(" << positions.col(2).transpose().format(cleanFmt) << ")\n";
+          logFile << "xMin = np.array(" << xMin_.segment(0,positions.rows()).transpose().format(cleanFmt) << ")\n";
+          logFile << "yMin = np.array(" << yMin_.segment(0,positions.rows()).transpose().format(cleanFmt) << ")\n";
+          logFile << "zMin = np.array(" << zMin_.segment(0,positions.rows()).transpose().format(cleanFmt) << ")\n";
+          logFile << "xMax = np.array(" << xMax_.segment(0,positions.rows()).transpose().format(cleanFmt) << ")\n";
+          logFile << "yMax = np.array(" << yMax_.segment(0,positions.rows()).transpose().format(cleanFmt) << ")\n";
+          logFile << "zMax = np.array(" << zMax_.segment(0,positions.rows()).transpose().format(cleanFmt) << ")\n";
           logFile << "dx = np.array(" << velocities.col(0).transpose().format(cleanFmt) << ")\n";
           logFile << "dy = np.array(" << velocities.col(1).transpose().format(cleanFmt) << ")\n";
           logFile << "dz = np.array(" << velocities.col(2).transpose().format(cleanFmt) << ")\n";
@@ -87,6 +107,12 @@ namespace humoto
           logFile << "ax1.plot(t, x, 'r', label='x')\n";
           logFile << "ax1.plot(t, y, 'b', label='y')\n";
           logFile << "ax1.plot(t, z, 'g', label='z')\n";
+          logFile << "ax1.plot(t, xMin, 'r--')\n";
+          logFile << "ax1.plot(t, yMin, 'b--')\n";
+          logFile << "ax1.plot(t, zMin, 'g--')\n";
+          logFile << "ax1.plot(t, xMax, 'r--')\n";
+          logFile << "ax1.plot(t, yMax, 'b--')\n";
+          logFile << "ax1.plot(t, zMax, 'g--')\n";
           logFile << "ax2.plot(t, dx, 'r', label='dx')\n";
           logFile << "ax2.plot(t, dy, 'b', label='dy')\n";
           logFile << "ax2.plot(t, dz, 'g', label='dz')\n";
@@ -116,6 +142,12 @@ namespace humoto
         std::vector<Eigen::Vector3d> velocitiesCoM_;
         std::vector<Eigen::Vector3d> accelerationsCoM_;
         std::vector<Eigen::Vector3d> jerksCoM_;
+        Eigen::VectorXd xMin_;
+        Eigen::VectorXd xMax_;
+        Eigen::VectorXd yMin_;
+        Eigen::VectorXd yMax_;
+        Eigen::VectorXd zMin_;
+        Eigen::VectorXd zMax_;
         double timeStep_;
     };
   } /* example */ 

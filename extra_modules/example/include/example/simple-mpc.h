@@ -11,12 +11,18 @@ namespace humoto
                 // Matrices to update the state
                 etools::Matrix9 A_;
                 etools::Matrix9x3 B_;
+                etools::Matrix2x9 D_;
+                etools::Matrix2x3 E_;
                 Eigen::MatrixXd Ux_;
                 Eigen::MatrixXd Uu_;
+                Eigen::MatrixXd Ox_;
+                Eigen::MatrixXd Ou_;
                 etools::Vector9 currentState_;
                 const ProblemParameters& pbParams_;
                 etools::SelectionMatrix velocity_selector_;
                 StateHistory stateHistory_;
+                StepPlan stepPlan_;
+                size_t currentStepIndex_;
 
                 etools::Matrix9 computeA()
                 {
@@ -46,6 +52,20 @@ namespace humoto
                   B_.block(6,2,3,1) = Bblock;
                   return B_;
                 }
+                etools::Matrix2x9 computeD()
+                {
+                  D_.setZero();
+                  D_(0,0) = 1;
+                  D_(0,2) = -pbParams_.h_CoM_/pbParams_.g_;
+                  D_(1,3) = 1;
+                  D_(1,5) = -pbParams_.h_CoM_/pbParams_.g_;
+                  return D_;
+                }
+                etools::Matrix2x3 computeE()
+                {
+                  E_.setZero();
+                  return E_;
+                }
             public:
                 /**
                  * @brief Constructor
@@ -53,22 +73,31 @@ namespace humoto
                 SimpleMPC(const ProblemParameters& pbParam)
                   : pbParams_(pbParam),
                   velocity_selector_(3,1),
-                  stateHistory_(pbParams_.t_)
+                  stateHistory_(pbParams_.t_),
+                  stepPlan_(pbParams_.leftSteps_, pbParams_.rightSteps_, pbParams_.t_),
+                  currentStepIndex_(0)
                 {
+                  stateHistory_.setMinMax(stepPlan_.xMin(), stepPlan_.xMax(),
+                                          stepPlan_.yMin(), stepPlan_.yMax(),
+                                          stepPlan_.zMin(), stepPlan_.zMax());
                   computeA();
                   computeB();
+                  computeD();
+                  computeE();
                   condenseTimeInvariant(Ux_, Uu_, pbParams_.n_, A_, B_);
+                  condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
                 }
 
                 const ProblemParameters& pbParams() const {return pbParams_;}
                 const etools::SelectionMatrix& velocity_selector() const {return velocity_selector_;}
                 const Eigen::MatrixXd& Uu() const {return Uu_;}
                 const Eigen::MatrixXd& Ux() const {return Ux_;}
+                const Eigen::MatrixXd& Ou() const {return Ou_;}
+                const Eigen::MatrixXd& Ox() const {return Ox_;}
                 const etools::Vector9& currentState() const { return currentState_;}
                 const StateHistory& stateHistory()const{return stateHistory_;}
+                const StepPlan& stepPlan() const {return stepPlan_;}
                 
-
-
 
                 /**
                  * @brief Update control problem
@@ -139,6 +168,9 @@ namespace humoto
 
                     stateHistory_.addStateAndControl(newState, solution.x_.segment(0,3));
 
+                    std::cout << "currentStepIndex_: " << currentStepIndex_ << std::endl;
+                    currentStepIndex_++;
+
                     return(state);
                 }
 
@@ -146,6 +178,7 @@ namespace humoto
                 {
                   return pbParams_.n_;
                 }
+                size_t currentStepIndex() const {return currentStepIndex_;}
 
 
                 /**
