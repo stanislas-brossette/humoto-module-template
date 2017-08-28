@@ -19,10 +19,34 @@ namespace humoto
          */
         class HUMOTO_LOCAL ProblemParameters : public humoto::config::ConfigurableBase
         {
+            public:
+                double g_; // gravity
+                double h_CoM_; // height of center of mass
+                double t_; // length of one time step
+                size_t n_; // number of time steps in horizon
+                size_t nIterations_; // total Number of iterations to reach endTime_
+                double endTime_; // End time of the control
+                etools::Vector3 comVelRef_; // target com speed
+                std::vector<Step> leftSteps_, rightSteps_;
+
+                double gainTaskVelocity_; // gain of the CoM velocity task
+                double gainTaskMinJerk_; // gain of the Min Jerk task
+                double gainTaskCoPBounds_; // gain of the CoP bounds task
+
             protected:
                 #define HUMOTO_CONFIG_SECTION_ID "ProblemParameters"
-                #define HUMOTO_CONFIG_ENTRIES
-                #include "humoto/config/define_accessors.h"
+                #define HUMOTO_CONFIG_ENTRIES \
+                    HUMOTO_CONFIG_SCALAR_(g);\
+                    HUMOTO_CONFIG_SCALAR_(h_CoM);\
+                    HUMOTO_CONFIG_SCALAR_(t);\
+                    HUMOTO_CONFIG_SCALAR_(n);\
+                    HUMOTO_CONFIG_SCALAR_(endTime);\
+                    HUMOTO_CONFIG_COMPOUND_(comVelRef);\
+                    HUMOTO_CONFIG_SCALAR_(gainTaskVelocity);\
+                    HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk);\
+                    HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds);
+                #include HUMOTO_CONFIG_DEFINE_ACCESSORS
+                //#include "humoto/config/define_accessors.h"
 
 
             public:
@@ -34,7 +58,13 @@ namespace humoto
                  */
                 ProblemParameters()
                 {
-                    setDefaults();
+                  setDefaults();
+                }
+
+                void finalize()
+                {
+                  nIterations_ = endTime_/t_;
+                  setStepPlan();
                 }
 
 
@@ -44,30 +74,29 @@ namespace humoto
                 void setDefaults()
                 {
                   g_ = 9.81;
-                  h_CoM_ = 0.5;
+                  h_CoM_ = 0.8;
                   t_ = 0.005;
-                  n_ = 50;
-                  cVelRef_(0) = 1;
-                  cVelRef_(1) = 0;
-                  cVelRef_(2) = 0;
-                  leftSteps_.push_back( Step(0  ,  0.1, 0.0,  0.0, 2.00));
-                  rightSteps_.push_back(Step(0  , -0.1, 0.0,  0.0, 3.05));
-                  leftSteps_.push_back( Step(0.2,  0.1, 0.0, 2.95, 4.05));
-                  rightSteps_.push_back(Step(0.4,-0.07, 0.0, 3.95, 5.05));
-                  leftSteps_.push_back( Step(0.6, 0.13, 0.0, 4.95, 6.05));
-                  rightSteps_.push_back(Step(0.8, -0.1, 0.0, 5.95, 8.05));
-                  leftSteps_.push_back( Step(1.0,  0.1, 0.0, 7.95, 9.05));
-                  rightSteps_.push_back(Step(1.3,-0.13, 0.0, 8.95, 13.0));
-                  leftSteps_.push_back( Step(1.6, 0.07, 0.0, 9.95, 13.0));
+                  n_ = 100;
+                  endTime_ = 10;
+                  comVelRef_(0) = 0.1;
+                  comVelRef_(1) = 0;
+                  comVelRef_(2) = 0;
+                  gainTaskVelocity_ = 100;
+                  setStepPlan();
                 }
 
-            public:
-                double g_; // gravity
-                double h_CoM_; // height of center of mass
-                double t_; // length of one time step
-                size_t n_; // number of time steps in horizon
-                etools::Vector3 cVelRef_; // target com horizontal speed
-                std::vector<Step> leftSteps_, rightSteps_;
+                void setStepPlan()
+                {
+                  leftSteps_.push_back( Step(0  ,  0.10, 0.0,  0.0, 2.00));
+                  rightSteps_.push_back(Step(0  , -0.10, 0.0,  0.0, 2.99));
+                  leftSteps_.push_back( Step(0.2,  0.10, 0.0, 2.91, 3.99));
+                  rightSteps_.push_back(Step(0.4, -0.10, 0.0, 3.91, 4.99));
+                  leftSteps_.push_back( Step(0.6,  0.10, 0.0, 4.91, 5.99));
+                  rightSteps_.push_back(Step(0.8, -0.10, 0.0, 5.91, 7.99));
+                  leftSteps_.push_back( Step(1.0,  0.10, 0.0, 7.91, 8.99));
+                  rightSteps_.push_back(Step(1.3, -0.10, 0.0, 8.91, 13.0));
+                  leftSteps_.push_back( Step(1.6,  0.10, 0.0, 9.91, 13.0));
+                }
         };
     }
 }

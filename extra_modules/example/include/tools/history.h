@@ -16,11 +16,11 @@ namespace humoto
         {
         }
         void setMinMax(const Eigen::VectorXd& xMin,
-            const Eigen::VectorXd& xMax,
-            const Eigen::VectorXd& yMin,
-            const Eigen::VectorXd& yMax,
-            const Eigen::VectorXd& zMin,
-            const Eigen::VectorXd& zMax)
+                       const Eigen::VectorXd& xMax,
+                       const Eigen::VectorXd& yMin,
+                       const Eigen::VectorXd& yMax,
+                       const Eigen::VectorXd& zMin,
+                       const Eigen::VectorXd& zMax)
         {
           xMin_ = xMin;
           xMax_ = xMax;
@@ -81,7 +81,7 @@ namespace humoto
           std::ofstream logFile("plotFile.py");
           logFile << "import numpy as np\n"
                   << "import matplotlib.pyplot as plt\n"
-                  << "t = np.arange(0.," << size()
+                  << "t = np.arange(0.," << (double)size()*(double)timeStep_ << ", " << timeStep_
                   << ")\n\n";
 
           Eigen::MatrixXd positions(toMatrix(positionsCoM_));
@@ -111,7 +111,7 @@ namespace humoto
           logFile << "dddy = np.array(" << jerks.col(1).transpose().format(cleanFmt) << ")\n";
           logFile << "dddz = np.array(" << jerks.col(2).transpose().format(cleanFmt) << ")\n";
 
-          logFile << "f, (ax1, ax2, ax3, ax4) = plt.subplots(4, sharex=True, sharey=False)\n";
+          logFile << "f, (ax1) = plt.subplots(1, sharex=True, sharey=False)\n";
           logFile << "ax1.plot(t, x, 'r', label='x')\n";
           logFile << "ax1.plot(t, y, 'b', label='y')\n";
           logFile << "ax1.plot(t, z, 'g', label='z')\n";
@@ -123,26 +123,29 @@ namespace humoto
           logFile << "ax1.plot(t, zMax[0:len(t)], 'g--')\n";
           logFile << "ax1.plot(t, xCoP, 'ro', label='xCoP')\n";
           logFile << "ax1.plot(t, yCoP, 'bo', label='yCoP')\n";
-          logFile << "ax1.set_ylim(-10,10)\n";
-          logFile << "ax2.plot(t, dx, 'r', label='dx')\n";
-          logFile << "ax2.plot(t, dy, 'b', label='dy')\n";
-          logFile << "ax2.plot(t, dz, 'g', label='dz')\n";
-          logFile << "ax3.plot(t, ddx, 'r', label='ddx')\n";
-          logFile << "ax3.plot(t, ddy, 'b', label='ddy')\n";
-          logFile << "ax3.plot(t, ddz, 'g', label='ddz')\n";
-          logFile << "ax4.plot(t, dddx, 'r', label='dddx')\n";
-          logFile << "ax4.plot(t, dddy, 'b', label='dddy')\n";
-          logFile << "ax4.plot(t, dddz, 'g', label='dddz')\n";
+          logFile << "ax1.set_ylim(-1,1)\n";
           logFile << "ax1.set_title('Positions')\n";
-          logFile << "ax2.set_title('Velocitities')\n";
-          logFile << "ax3.set_title('Accelerations')\n";
-          logFile << "ax4.set_title('Jerks')\n";
-          //logFile << "f.subplots_adjust(hspace=0)\n";
           logFile << "legend = ax1.legend(loc='upper center', shadow=True)\n";
-          logFile << "legend = ax2.legend(loc='upper center', shadow=True)\n";
-          logFile << "legend = ax3.legend(loc='upper center', shadow=True)\n";
-          logFile << "legend = ax4.legend(loc='upper center', shadow=True)\n";
-          logFile << "plt.axis('auto')\n";
+
+          //logFile << "ax2.plot(t, dx, 'r', label='dx')\n";
+          //logFile << "ax2.plot(t, dy, 'b', label='dy')\n";
+          //logFile << "ax2.plot(t, dz, 'g', label='dz')\n";
+          //logFile << "ax2.set_title('Velocitities')\n";
+          //logFile << "legend = ax2.legend(loc='upper center', shadow=True)\n";
+
+          //logFile << "ax3.plot(t, ddx, 'r', label='ddx')\n";
+          //logFile << "ax3.plot(t, ddy, 'b', label='ddy')\n";
+          //logFile << "ax3.plot(t, ddz, 'g', label='ddz')\n";
+          //logFile << "ax3.set_title('Accelerations')\n";
+          //logFile << "legend = ax3.legend(loc='upper center', shadow=True)\n";
+
+          //logFile << "ax4.plot(t, dddx, 'r', label='dddx')\n";
+          //logFile << "ax4.plot(t, dddy, 'b', label='dddy')\n";
+          //logFile << "ax4.plot(t, dddz, 'g', label='dddz')\n";
+          //logFile << "ax4.set_title('Jerks')\n";
+          //logFile << "legend = ax4.legend(loc='upper center', shadow=True)\n";
+
+          //logFile << "plt.axis('auto')\n";
           logFile << "plt.show()\n";
           logFile.close();
         } 

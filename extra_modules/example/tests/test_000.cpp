@@ -36,6 +36,9 @@ int main(int argc, char **argv)
 {
     try
     {
+        std::string     config_file_name = "extra_modules/example/tests/test_000.yaml";
+
+        humoto::config::Reader config_reader(config_file_name);
         // optimization problem (a stack of tasks / hierarchy)
         humoto::OptimizationProblem               opt_problem;
 
@@ -44,7 +47,7 @@ int main(int argc, char **argv)
         humoto::qpoases::Solver                   solver(solver_parameters);
         humoto::qpoases::Solution                 solution;
 
-        humoto::example::ProblemParameters             problem_parameters;
+        humoto::example::ProblemParameters        problem_parameters(config_reader);
 
         // model representing the controlled system
         humoto::example::Model                      model;
@@ -55,10 +58,10 @@ int main(int argc, char **argv)
         humoto::example::SimpleMPC                  control_problem(problem_parameters);
 
 
-        setupHierarchy_v0(opt_problem);
+        setupHierarchy_v0(opt_problem, problem_parameters);
 
 
-        for (unsigned int i = 0; i < 1000; ++i)
+        for (unsigned int i = 0; i < problem_parameters.nIterations_; ++i)
         {
             // -------------------------------------------------
             if (control_problem.update(model, problem_parameters) != humoto::ControlProblemStatus::OK)

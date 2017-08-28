@@ -38,5 +38,4 @@ namespace humoto
 #include "example/simple-mpc.h"
 #include "example/task_comvelocity.h"
 #include "example/task_copbounds.h"
-#include "example/task_minjerk.h"
 #include "example/setup_hierarchy.h"

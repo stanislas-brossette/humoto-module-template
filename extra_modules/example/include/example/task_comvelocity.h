@@ -27,7 +27,7 @@ namespace humoto
                 void setDefaults()
                 {
                     TaskAB::setDefaults();
-                    setGain(10);
+                    setGain(100);
                 }
 
 
@@ -59,7 +59,7 @@ namespace humoto
 
                     for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
                     {
-                        cvel_ref.segment(i*3, 3) = mpc.pbParams().cVelRef_;
+                        cvel_ref.segment(i*3, 3) = mpc.pbParams().comVelRef_;
                     }
 
                     A.noalias() = getGain() * (mpc.velocity_selector() * mpc.Uu());

@@ -1,0 +1,10 @@
+ProblemParameters:
+  g: 9.81
+  h_CoM: 0.8
+  t: 0.1
+  endTime: 12
+  n: 10
+  comVelRef: [0.1, 0.0, 0.0]
+  gainTaskVelocity: 10
+  gainTaskMinJerk: 10
+  gainTaskCoPBounds: 1

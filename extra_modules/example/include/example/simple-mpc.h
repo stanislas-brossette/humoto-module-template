@@ -54,16 +54,22 @@ namespace humoto
                 }
                 etools::Matrix2x9 computeD()
                 {
+                  double t = pbParams_.t_;
                   D_.setZero();
                   D_(0,0) = 1;
-                  D_(0,2) = -pbParams_.h_CoM_/pbParams_.g_;
+                  D_(0,1) = t;
+                  D_(0,2) = t*t/2.0 - pbParams_.h_CoM_/pbParams_.g_;
                   D_(1,3) = 1;
-                  D_(1,5) = -pbParams_.h_CoM_/pbParams_.g_;
+                  D_(1,4) = t;
+                  D_(1,5) = t*t/2.0 - pbParams_.h_CoM_/pbParams_.g_;
                   return D_;
                 }
                 etools::Matrix2x3 computeE()
                 {
+                  double t = pbParams_.t_;
                   E_.setZero();
+                  E_(0,0) = t*t*t/6 - pbParams_.h_CoM_*t/pbParams_.g_;
+                  E_(1,1) = t*t*t/6 - pbParams_.h_CoM_*t/pbParams_.g_;
                   return E_;
                 }
             public:
@@ -113,7 +119,7 @@ namespace humoto
                 {
                     sol_structure_.reset();
                     sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.n_*3 );
-                    std::size_t number_of_state_variables = model.Ns_ * problem_parameters.n_;
+                    //std::size_t number_of_state_variables = model.Ns_ * problem_parameters.n_;
 
                     currentState_(0) = model.state_.com_state_.position_(0);
                     currentState_(1) = model.state_.com_state_.velocity_(0);

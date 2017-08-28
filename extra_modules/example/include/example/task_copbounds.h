@@ -30,7 +30,7 @@ namespace humoto
                 void setDefaults()
                 {
                     TaskALU::setDefaults();
-                    setGain(100);
+                    setGain(1);
                 }
 
 
@@ -41,7 +41,7 @@ namespace humoto
 
 
             public:
-                TaskCoPBounds(const double gain = 100) : TaskALU("TaskCoPBounds", gain)
+                TaskCoPBounds(const double gain = 1) : TaskALU("TaskCoPBounds", gain)
                 {
                 }
 
