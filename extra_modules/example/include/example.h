@@ -1,5 +1,6 @@
 /**
     @file
+    @author  Stanislas Brossette
     @author  Alexander Sherikov
 
     @copyright 2017 INRIA. Licensed under the Apache License, Version 2.0. (see
@@ -10,23 +11,6 @@
 
 
 #pragma  once
-
-namespace humoto
-{
-    /**
-     * @brief Example: example module
-     *
-     * @ingroup Modules
-     * @{
-     * @defgroup example example
-     * @}
-     *
-     * @ingroup example
-     */
-    namespace example
-    {
-    }
-}
 
 #include "humoto/walking.h"
 

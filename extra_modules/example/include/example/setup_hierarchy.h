@@ -1,6 +1,7 @@
 /**
     @file
     @author  Stanislas Brossette
+    @author  Alexander Sherikov
     @copyright 2014-2017 INRIA. Licensed under the Apache License, Version 2.0.
     (see @ref LICENSE or http://www.apache.org/licenses/LICENSE-2.0)
 
@@ -9,13 +10,12 @@
 
 #pragma once
 
-
 /**
  * @brief Hierarchy 0: basic
  *
  * @param[in] opt_problem       hierarchy
  */
-void setupHierarchy_v0(humoto::OptimizationProblem &opt_problem, const humoto::example::ProblemParameters& params)
+void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem, const humoto::example::ProblemParameters& params)
 {
     // tasks, which are used in the control problem
     humoto::TaskSharedPointer task_cop_bounds(new humoto::example::TaskCoPBounds(params.gainTaskCoPBounds_));
@@ -32,5 +32,4 @@ void setupHierarchy_v0(humoto::OptimizationProblem &opt_problem, const humoto::e
     opt_problem.pushTask(task_com_velocity, 1);
     opt_problem.pushTask(task_min_jerk, 1);
 }
-
 

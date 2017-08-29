@@ -1,4 +1,15 @@
+/**
+    @file
+    @author  Stanislas Brossette
+
+    @copyright 2014-2017 INRIA. Licensed under the Apache License, Version 2.0.
+    (see @ref LICENSE or http://www.apache.org/licenses/LICENSE-2.0)
+
+    @brief
+*/
+
 #pragma once
+
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
@@ -11,8 +22,7 @@ namespace example
 class HUMOTO_LOCAL Logger
 {
    public:
-    Logger(double timeStep, const StepPlan& stepPlan)
-      : timeStep_(timeStep)
+    Logger(double timeStep, const StepPlan& stepPlan) : timeStep_(timeStep)
     {
         xMin_ = stepPlan.xMin();
         xMax_ = stepPlan.xMax();

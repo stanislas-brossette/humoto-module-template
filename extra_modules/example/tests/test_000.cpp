@@ -1,5 +1,6 @@
 /**
     @file
+    @author  Stanislas Brossette
     @author  Alexander Sherikov
 
     @copyright 2017 INRIA. Licensed under the Apache License, Version 2.0. (see
@@ -20,9 +21,7 @@
 #include "humoto/qpoases.h"
 #include "humoto/example.h"
 
-
 HUMOTO_INITIALIZE_GLOBAL_LOGGER(std::cout);
-
 
 /**
  * @brief Simple control loop
@@ -36,30 +35,27 @@ int main(int argc, char **argv)
 {
     try
     {
-        std::string     config_file_name = "extra_modules/example/tests/test_000.yaml";
+        std::string config_file_name = "extra_modules/example/tests/test_000.yaml";
 
         humoto::config::Reader config_reader(config_file_name);
         // optimization problem (a stack of tasks / hierarchy)
-        humoto::OptimizationProblem               opt_problem;
+        humoto::OptimizationProblem opt_problem;
 
-        humoto::qpoases::SolverParameters         solver_parameters;
+        humoto::qpoases::SolverParameters solver_parameters;
         solver_parameters.crash_on_any_failure_ = false;
-        humoto::qpoases::Solver                   solver(solver_parameters);
-        humoto::qpoases::Solution                 solution;
+        humoto::qpoases::Solver solver(solver_parameters);
+        humoto::qpoases::Solution solution;
 
-        humoto::example::ProblemParameters        problem_parameters(config_reader);
+        humoto::example::ProblemParameters problem_parameters(config_reader);
 
         // model representing the controlled system
-        humoto::example::Model                      model;
-        humoto::example::ModelState                 model_state;
-
+        humoto::example::Model model;
+        humoto::example::ModelState model_state;
 
         // control problem, which is used to construct an optimization problem
-        humoto::example::SimpleMPC                  control_problem(problem_parameters);
-
+        humoto::example::SimpleMPC control_problem(problem_parameters);
 
         setupHierarchy_v0(opt_problem, problem_parameters);
-
 
         for (unsigned int i = 0; i < problem_parameters.nIterations_; ++i)
         {
@@ -70,12 +66,12 @@ int main(int argc, char **argv)
             }
             opt_problem.form(solution, model, control_problem);
             solver.solve(solution, opt_problem);
-            //std::cout << "Solution: " << std::endl;
-            //solution.log();
+            // std::cout << "Solution: " << std::endl;
+            // solution.log();
             // -------------------------------------------------
 
             // -------------------------------------------------
-            //stance_fsm.shiftTime(100);
+            // stance_fsm.shiftTime(100);
             model_state = control_problem.getNextModelState(solution, model);
             model.updateState(model_state);
             // -------------------------------------------------
