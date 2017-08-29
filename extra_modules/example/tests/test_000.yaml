@@ -8,3 +8,4 @@ ProblemParameters:
   gainTaskVelocity: 10
   gainTaskMinJerk: 10
   gainTaskCoPBounds: 1
+  gainTaskCoPPosRef: 100

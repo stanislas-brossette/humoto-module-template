@@ -13,9 +13,6 @@ namespace humoto
 {
     namespace example
     {
-        /**
-         * @brief [task_cvel.m]
-         */
         class HUMOTO_LOCAL TaskCoPBounds: public humoto::TaskALU
         {
             private:
@@ -57,8 +54,11 @@ namespace humoto
                     Eigen::MatrixXd &A = getA();
                     Eigen::VectorXd &l = getLowerBounds();
                     Eigen::VectorXd &u = getUpperBounds();
-                    zBoundsHigh_.resize(2*mpc.getPreviewHorizonLength());
-                    zBoundsLow_.resize(2*mpc.getPreviewHorizonLength());
+
+                    if(zBoundsHigh_.size() != 2*(long)mpc.getPreviewHorizonLength())
+                      zBoundsHigh_.resize(2*mpc.getPreviewHorizonLength());
+                    if(zBoundsLow_.size() != 2*(long)mpc.getPreviewHorizonLength())
+                      zBoundsLow_.resize(2*mpc.getPreviewHorizonLength());
 
                     for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
                     {
@@ -70,8 +70,8 @@ namespace humoto
 
                     A.noalias() = getGain() * mpc.Ou();
 
-                    l.noalias() = -getGain() * mpc.Ox() * mpc.currentState() + zBoundsLow_;
-                    u.noalias() = -getGain() * mpc.Ox() * mpc.currentState() + zBoundsHigh_;
+                    l.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsLow_);
+                    u.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsHigh_);
                 };
         };
     }

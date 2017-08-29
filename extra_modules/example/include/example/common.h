@@ -32,6 +32,7 @@ namespace humoto
                 double gainTaskVelocity_; // gain of the CoM velocity task
                 double gainTaskMinJerk_; // gain of the Min Jerk task
                 double gainTaskCoPBounds_; // gain of the CoP bounds task
+                double gainTaskCoPPosRef_; // gain of the CoP position reference task
 
             protected:
                 #define HUMOTO_CONFIG_SECTION_ID "ProblemParameters"
@@ -43,6 +44,7 @@ namespace humoto
                     HUMOTO_CONFIG_SCALAR_(endTime);\
                     HUMOTO_CONFIG_COMPOUND_(comVelRef);\
                     HUMOTO_CONFIG_SCALAR_(gainTaskVelocity);\
+                    HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef);\
                     HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk);\
                     HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds);
                 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
@@ -82,6 +84,9 @@ namespace humoto
                   comVelRef_(1) = 0;
                   comVelRef_(2) = 0;
                   gainTaskVelocity_ = 100;
+                  gainTaskCoPBounds_ = 100;
+                  gainTaskCoPPosRef_ = 100;
+                  gainTaskMinJerk_= 100;
                   setStepPlan();
                 }
 
