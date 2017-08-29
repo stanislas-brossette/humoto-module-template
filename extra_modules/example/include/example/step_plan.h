@@ -17,14 +17,29 @@ namespace example
 class HUMOTO_LOCAL Step
 {
    public:
+    /// @brief Constructor for step
+    ///
+    /// @param x x
+    /// @param y y
+    /// @param z z
+    /// @param tMin starting time of the step
+    /// @param tMax end time of the step
     Step(double x, double y, double z, double tMin, double tMax) : x_(x), y_(y), z_(z), tMin_(tMin), tMax_(tMax) {}
-    Step(const std::vector<double> v) : x_(v.at(0)), y_(v.at(1)), z_(v.at(2)), tMin_(v.at(3)), tMax_(v.at(4)) {}
-    virtual ~Step(){};
 
+    /// @brief Construstor for the step from a vector
+    ///
+    /// @param v vector containing [ x, y, z, tMin, tMax]
+    Step(const std::vector<double> v) : x_(v.at(0)), y_(v.at(1)), z_(v.at(2)), tMin_(v.at(3)), tMax_(v.at(4)) {}
+
+    /// @brief Getter for x
     const double& x() const { return x_; }
+    /// @brief Getter for y
     const double& y() const { return y_; }
+    /// @brief Getter for z
     const double& z() const { return z_; }
+    /// @brief Getter for tMin
     const double& tMin() const { return tMin_; }
+    /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
 
    private:
@@ -38,8 +53,14 @@ class HUMOTO_LOCAL Step
 class HUMOTO_LOCAL StepPlan
 {
    public:
+    /// @brief Default constructor
     StepPlan(){};
 
+    /// @brief Constructor from list of parameters
+    ///
+    /// @param leftStepsParameters parameters for all the left foot steps
+    /// @param rightStepsParameters parameters for all the right foot steps
+    /// @param T timestep
     StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
              const std::vector<std::vector<double> >& rightStepsParameters, double T)
         : T_(T)
@@ -56,14 +77,17 @@ class HUMOTO_LOCAL StepPlan
                           "[Config] each step parameter must be a size 5 vector]")
             rightSteps_.push_back(Step(rightStepsParameters.at(i)));
         }
-        computePlan(leftSteps_, rightSteps_, T_);
+        computePlan();
     }
 
-    void computePlan(std::vector<Step> leftSteps, std::vector<Step> rightSteps, double T)
+    /// @brief Computes the values of xMin, xMax, yMin, yMax, zMin and zMax (Sustentation polygon) for each time step
+    ///
+    /// @param leftSteps list of left foot steps
+    /// @param rightSteps list of right foot steps
+    void computePlan(std::vector<Step> leftSteps, std::vector<Step> rightSteps)
     {
         leftSteps_ = leftSteps;
         rightSteps_ = rightSteps;
-        T_ = T;
         tMax_ = leftSteps[0].tMax();
         stepXWidth_ = 0.2;
         stepYWidth_ = 0.1;
@@ -79,7 +103,7 @@ class HUMOTO_LOCAL StepPlan
         Eigen::VectorXd time(nTimeSteps);
         for (long i = 0; i < nTimeSteps; i++)
         {
-            time(i) = i * T;
+            time(i) = i * T_;
         }
 
         xMin_.resize(nTimeSteps);
@@ -167,17 +191,29 @@ class HUMOTO_LOCAL StepPlan
             }
         }
     }
-    virtual ~StepPlan(){};
+
+    /// @brief Computes the plan for steps contained in the fields leftSteps_ and rightSteps_
+    void computePlan() { computePlan(leftSteps_, rightSteps_); }
+
+    /// @brief Getter for xMin
     const Eigen::VectorXd& xMin() const { return xMin_; }
+    /// @brief Getter for xMax
     const Eigen::VectorXd& xMax() const { return xMax_; }
+    /// @brief Getter for yMin
     const Eigen::VectorXd& yMin() const { return yMin_; }
+    /// @brief Getter for yMax
     const Eigen::VectorXd& yMax() const { return yMax_; }
+    /// @brief Getter for zMin
     const Eigen::VectorXd& zMin() const { return zMin_; }
+    /// @brief Getter for zMax
     const Eigen::VectorXd& zMax() const { return zMax_; }
+    /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
 
    private:
+    /// @brief List of left foot steps
     std::vector<Step> leftSteps_;
+    /// @brief List of right foot steps
     std::vector<Step> rightSteps_;
     Eigen::VectorXd xMin_;
     Eigen::VectorXd xMax_;
@@ -187,8 +223,11 @@ class HUMOTO_LOCAL StepPlan
     Eigen::VectorXd zMax_;
     double tMax_;
     double T_;
+    /// @brief Width of foot along X
     double stepXWidth_;
+    /// @brief Width of foot along Y
     double stepYWidth_;
+    /// @brief Width of foot along Z
     double stepZWidth_;
 };
 } /* example */

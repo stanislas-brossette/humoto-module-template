@@ -10,11 +10,10 @@
 
 #pragma once
 
-/**
- * @brief Hierarchy 0: basic
- *
- * @param[in] opt_problem       hierarchy
- */
+/// @brief Setup the hierarchy of tasks of the problem
+///
+/// @param opt_problem The optimization problem on which tasks will be added
+/// @param params The problem's parameters (for the tasks gains)
 void setupHierarchy_v0(humoto::OptimizationProblem& opt_problem, const humoto::example::ProblemParameters& params)
 {
     // tasks, which are used in the control problem

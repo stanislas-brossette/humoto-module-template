@@ -15,28 +15,40 @@ namespace humoto
 {
 namespace example
 {
-/**
- * @brief Class containing options
- */
+/// @brief Class containing the parameters of the problem. It can be configured through yaml file
 class HUMOTO_LOCAL ProblemParameters : public humoto::config::ConfigurableBase
 {
    public:
-    double g_;                                                // gravity
-    double h_CoM_;                                            // height of center of mass
-    double t_;                                                // length of one time step
-    size_t n_;                                                // number of time steps in horizon
-    size_t nIterations_;                                      // total Number of iterations to reach endTime_
-    double endTime_;                                          // End time of the control
-    etools::Vector3 comVelRef_;                               // target com speed
-    std::vector<std::vector<double> > leftStepsParameters_;   // parameters of the right stepping plan
-    std::vector<std::vector<double> > rightStepsParameters_;  // parameters of the right stepping plan
+    /// @brief Gravity constant
+    double g_;
+    /// @brief height of center of mass
+    double h_CoM_;
+    /// @brief length of one time step
+    double t_;
+    /// @brief number of time steps in horizon
+    size_t n_;
+    /// @brief total number of iterations to reach endTime_
+    size_t nIterations_;
+    /// @brief End time of the control
+    double endTime_;
+    /// @brief target com speed
+    etools::Vector3 comVelRef_;
+    /// @brief parameters of the right stepping plan
+    std::vector<std::vector<double> > leftStepsParameters_;
+    /// @brief parameters of the right stepping plan
+    std::vector<std::vector<double> > rightStepsParameters_;
 
-    double gainTaskVelocity_;   // gain of the CoM velocity task
-    double gainTaskMinJerk_;    // gain of the Min Jerk task
-    double gainTaskCoPBounds_;  // gain of the CoP bounds task
-    double gainTaskCoPPosRef_;  // gain of the CoP position reference task
+    /// @brief gain of the CoM velocity task
+    double gainTaskVelocity_;
+    /// @brief gain of the Min Jerk task
+    double gainTaskMinJerk_;
+    /// @brief gain of the CoP bounds task
+    double gainTaskCoPBounds_;
+    /// @brief gain of the CoP position reference task
+    double gainTaskCoPPosRef_;
 
    protected:
+/// Those macros define the necessary tools to read the variables from a yaml configuration file
 #define HUMOTO_CONFIG_SECTION_ID "ProblemParameters"
 #define HUMOTO_CONFIG_ENTRIES                      \
     HUMOTO_CONFIG_SCALAR_(g);                      \
@@ -56,16 +68,13 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::ConfigurableBase
    public:
     HUMOTO_DEFINE_CONFIG_CONSTRUCTORS(ProblemParameters)
 
-    /**
-     * @brief Default constructor
-     */
+    /// @brief Default constructor
     ProblemParameters() { setDefaults(); }
 
+    /// @brief Finalizes the configuration of this class after all other parameters have been set
     void finalize() { nIterations_ = endTime_ / t_; }
 
-    /**
-     * @brief Default parameters of the walk
-     */
+    /// @brief Sets the default parameters of the walk
     void setDefaults()
     {
         g_ = 9.81;
@@ -83,6 +92,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::ConfigurableBase
         setDefaultStepParameters();
     }
 
+    /// @brief Sets the default values of the stepping plan
     void setDefaultStepParameters()
     {
         double l0[] = {0, 0.10, 0.0, 0.0, 2.00};

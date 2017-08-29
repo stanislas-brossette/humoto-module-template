@@ -6,9 +6,8 @@
     @copyright 2017 INRIA. Licensed under the Apache License, Version 2.0. (see
     LICENSE or http://www.apache.org/licenses/LICENSE-2.0)
 
-    @brief
+    @brief This file regroups all the necessary includes for this project
 */
-
 
 #pragma  once
 

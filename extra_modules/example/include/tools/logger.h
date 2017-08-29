@@ -19,9 +19,11 @@ namespace humoto
 {
 namespace example
 {
+/// @brief Class used to log and display the CoM and CoP history
 class HUMOTO_LOCAL Logger
 {
    public:
+    /// @brief Constructor
     Logger(double timeStep, const StepPlan& stepPlan) : timeStep_(timeStep)
     {
         xMin_ = stepPlan.xMin();
@@ -32,6 +34,10 @@ class HUMOTO_LOCAL Logger
         zMax_ = stepPlan.zMax();
     }
 
+    /// @brief Adds a single state and control to the history
+    ///
+    /// @param state state
+    /// @param control control
     void addStateAndControl(const etools::Vector9 state, const etools::Vector3 control)
     {
         Eigen::Vector3d position, velocity, acceleration, cop;
@@ -54,6 +60,11 @@ class HUMOTO_LOCAL Logger
     Eigen::MatrixXd getJerksAsMatrix() const { return toMatrix(jerksCoM_); }
     Eigen::MatrixXd getCoPsAsMatrix() const { return toMatrix(positionsCoP_); }
 
+    /// @brief Transforms a list of vector3 into a matrix
+    ///
+    /// @param vec list of vector3
+    ///
+    /// @return Matrix concatenation of the vectors
     Eigen::MatrixXd toMatrix(const std::vector<Eigen::Vector3d>& vec) const
     {
         Eigen::MatrixXd mat;
@@ -61,7 +72,11 @@ class HUMOTO_LOCAL Logger
         for (size_t i = 0; i < vec.size(); ++i) mat.row(i) << vec[i].transpose();
         return mat;
     }
+
+    /// @brief Getter for size
     size_t size() const { return positionsCoM_.size(); }
+
+    /// @brief Prints the history of the CoM
     void print() const
     {
         std::cout << "Position History:" << std::endl;
@@ -74,6 +89,7 @@ class HUMOTO_LOCAL Logger
         std::cout << toMatrix(jerksCoM_) << std::endl;
     }
 
+    /// @brief Writes a python file that can later be executed to display the history of the system
     void plot() const
     {
         Eigen::IOFormat cleanFmt(4, 0, ", ", "\n", "[", "]");
