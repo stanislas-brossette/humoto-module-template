@@ -28,6 +28,7 @@ namespace humoto
                 double endTime_; // End time of the control
                 etools::Vector3 comVelRef_; // target com speed
                 std::vector<Step> leftSteps_, rightSteps_;
+                std::vector<std::vector<double> > leftStepsParameters_, rightStepsParameters_;
 
                 double gainTaskVelocity_; // gain of the CoM velocity task
                 double gainTaskMinJerk_; // gain of the Min Jerk task
@@ -43,6 +44,8 @@ namespace humoto
                     HUMOTO_CONFIG_SCALAR_(n);\
                     HUMOTO_CONFIG_SCALAR_(endTime);\
                     HUMOTO_CONFIG_COMPOUND_(comVelRef);\
+                    HUMOTO_CONFIG_COMPOUND_(leftStepsParameters);\
+                    HUMOTO_CONFIG_COMPOUND_(rightStepsParameters);\
                     HUMOTO_CONFIG_SCALAR_(gainTaskVelocity);\
                     HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef);\
                     HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk);\
@@ -66,7 +69,7 @@ namespace humoto
                 void finalize()
                 {
                   nIterations_ = endTime_/t_;
-                  setStepPlan();
+                  setStepPlan(leftStepsParameters_, rightStepsParameters_);
                 }
 
 
@@ -87,10 +90,27 @@ namespace humoto
                   gainTaskCoPBounds_ = 100;
                   gainTaskCoPPosRef_ = 100;
                   gainTaskMinJerk_= 100;
-                  setStepPlan();
+                  setDefaultStepPlan();
                 }
 
-                void setStepPlan()
+                void setStepPlan(const std::vector<std::vector<double> > & leftStepsParameters,
+                    const std::vector<std::vector<double> > & rightStepsParameters )
+                {
+                  for (size_t i = 0; i < leftStepsParameters.size(); ++i)
+                  {
+                    HUMOTO_ASSERT( leftStepsParameters.at(i).size() == 5,
+                        "[Config] each step parameter must be a size 5 vector]")
+                    leftSteps_.push_back( Step(leftStepsParameters.at(i)));
+                  }
+                  for (size_t i = 0; i < rightStepsParameters.size(); ++i)
+                  {
+                    HUMOTO_ASSERT( rightStepsParameters.at(i).size() == 5,
+                        "[Config] each step parameter must be a size 5 vector]")
+                    rightSteps_.push_back( Step(rightStepsParameters.at(i)));
+                  }
+                }
+
+                void setDefaultStepPlan()
                 {
                   leftSteps_.push_back( Step(0  ,  0.10, 0.0,  0.0, 2.00));
                   rightSteps_.push_back(Step(0  , -0.10, 0.0,  0.0, 2.99));

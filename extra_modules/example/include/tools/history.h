@@ -111,7 +111,7 @@ namespace humoto
           logFile << "dddy = np.array(" << jerks.col(1).transpose().format(cleanFmt) << ")\n";
           logFile << "dddz = np.array(" << jerks.col(2).transpose().format(cleanFmt) << ")\n";
 
-          logFile << "f, (ax1) = plt.subplots(1, sharex=True, sharey=False)\n";
+          logFile << "f, (ax1, ax5) = plt.subplots(2, sharex=False, sharey=False)\n";
           logFile << "ax1.plot(t, x, 'r', label='x')\n";
           logFile << "ax1.plot(t, y, 'b', label='y')\n";
           logFile << "ax1.plot(t, z, 'g', label='z')\n";
@@ -123,7 +123,7 @@ namespace humoto
           logFile << "ax1.plot(t, zMax[0:len(t)], 'g--')\n";
           logFile << "ax1.plot(t, xCoP, 'ro', label='xCoP')\n";
           logFile << "ax1.plot(t, yCoP, 'bo', label='yCoP')\n";
-          logFile << "ax1.set_ylim(-1,1)\n";
+          logFile << "ax1.set_ylim(-0.5,1.8)\n";
           logFile << "ax1.set_title('Positions')\n";
           logFile << "legend = ax1.legend(loc='upper center', shadow=True)\n";
 
@@ -145,7 +145,12 @@ namespace humoto
           //logFile << "ax4.set_title('Jerks')\n";
           //logFile << "legend = ax4.legend(loc='upper center', shadow=True)\n";
 
-          //logFile << "plt.axis('auto')\n";
+          logFile << "ax5.plot(x, y, 'r', label='traj CoM')\n";
+          logFile << "ax5.plot(xCoP, yCoP, 'b', label='traj CoP')\n";
+          logFile << "ax5.set_title('Trajectories')\n";
+          logFile << "legend = ax5.legend(loc='upper center', shadow=True)\n";
+
+          logFile << "plt.axis('auto')\n";
           logFile << "plt.show()\n";
           logFile.close();
         } 

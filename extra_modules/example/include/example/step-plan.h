@@ -12,6 +12,10 @@ class HUMOTO_LOCAL Step
       : x_(x), y_(y), z_(z), tMin_(tMin), tMax_(tMax)
   {
   }
+  Step(const std::vector<double> v)
+      : x_(v.at(0)), y_(v.at(1)), z_(v.at(2)), tMin_(v.at(3)), tMax_(v.at(4))
+  {
+  }
   virtual ~Step(){};
 
   const double& x() const { return x_; }
