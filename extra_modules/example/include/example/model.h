@@ -19,16 +19,12 @@ namespace humoto
             public:
                 /// state of the model
                 humoto::example::ModelState       state_;
-                // Number of state variables
-                size_t Ns_;
-
 
             public:
                 /**
                  * @brief Default constructor
                  */
                 Model()
-                  : Ns_(9)
                 {
                 }
 

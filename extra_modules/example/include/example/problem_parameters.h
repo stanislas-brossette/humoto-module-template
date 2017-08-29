@@ -27,8 +27,8 @@ namespace humoto
                 size_t nIterations_; // total Number of iterations to reach endTime_
                 double endTime_; // End time of the control
                 etools::Vector3 comVelRef_; // target com speed
-                std::vector<Step> leftSteps_, rightSteps_;
-                std::vector<std::vector<double> > leftStepsParameters_, rightStepsParameters_;
+                std::vector<std::vector<double> > leftStepsParameters_; // parameters of the right stepping plan 
+                std::vector<std::vector<double> > rightStepsParameters_; // parameters of the right stepping plan 
 
                 double gainTaskVelocity_; // gain of the CoM velocity task
                 double gainTaskMinJerk_; // gain of the Min Jerk task
@@ -51,7 +51,6 @@ namespace humoto
                     HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk);\
                     HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds);
                 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
-                //#include "humoto/config/define_accessors.h"
 
 
             public:
@@ -69,7 +68,6 @@ namespace humoto
                 void finalize()
                 {
                   nIterations_ = endTime_/t_;
-                  setStepPlan(leftStepsParameters_, rightStepsParameters_);
                 }
 
 
@@ -90,37 +88,29 @@ namespace humoto
                   gainTaskCoPBounds_ = 100;
                   gainTaskCoPPosRef_ = 100;
                   gainTaskMinJerk_= 100;
-                  setDefaultStepPlan();
+                  setDefaultStepParameters();
                 }
 
-                void setStepPlan(const std::vector<std::vector<double> > & leftStepsParameters,
-                    const std::vector<std::vector<double> > & rightStepsParameters )
+                void setDefaultStepParameters()
                 {
-                  for (size_t i = 0; i < leftStepsParameters.size(); ++i)
-                  {
-                    HUMOTO_ASSERT( leftStepsParameters.at(i).size() == 5,
-                        "[Config] each step parameter must be a size 5 vector]")
-                    leftSteps_.push_back( Step(leftStepsParameters.at(i)));
-                  }
-                  for (size_t i = 0; i < rightStepsParameters.size(); ++i)
-                  {
-                    HUMOTO_ASSERT( rightStepsParameters.at(i).size() == 5,
-                        "[Config] each step parameter must be a size 5 vector]")
-                    rightSteps_.push_back( Step(rightStepsParameters.at(i)));
-                  }
-                }
-
-                void setDefaultStepPlan()
-                {
-                  leftSteps_.push_back( Step(0  ,  0.10, 0.0,  0.0, 2.00));
-                  rightSteps_.push_back(Step(0  , -0.10, 0.0,  0.0, 2.99));
-                  leftSteps_.push_back( Step(0.2,  0.10, 0.0, 2.91, 3.99));
-                  rightSteps_.push_back(Step(0.4, -0.10, 0.0, 3.91, 4.99));
-                  leftSteps_.push_back( Step(0.6,  0.10, 0.0, 4.91, 5.99));
-                  rightSteps_.push_back(Step(0.8, -0.10, 0.0, 5.91, 7.99));
-                  leftSteps_.push_back( Step(1.0,  0.10, 0.0, 7.91, 8.99));
-                  rightSteps_.push_back(Step(1.3, -0.10, 0.0, 8.91, 13.0));
-                  leftSteps_.push_back( Step(1.6,  0.10, 0.0, 9.91, 13.0));
+                    double l0[] = {0  ,  0.10, 0.0,  0.0, 2.00};
+                    double r0[] = {0  , -0.10, 0.0,  0.0, 2.99};
+                    double l1[] = {0.2,  0.10, 0.0, 2.91, 3.99};
+                    double r1[] = {0.4, -0.10, 0.0, 3.91, 4.99};
+                    double l2[] = {0.6,  0.10, 0.0, 4.91, 5.99};
+                    double r2[] = {0.8, -0.10, 0.0, 5.91, 7.99};
+                    double l3[] = {1.0,  0.10, 0.0, 7.91, 8.99};
+                    double r3[] = {1.3, -0.10, 0.0, 8.91, 13.0};
+                    double l4[] = {1.6,  0.10, 0.0, 9.91, 13.0};
+                    leftStepsParameters_.push_back( std::vector<double>(l0, l0+5));
+                    rightStepsParameters_.push_back(std::vector<double>(r0, r0+5));
+                    leftStepsParameters_.push_back( std::vector<double>(l1, l1+5));
+                    rightStepsParameters_.push_back(std::vector<double>(r1, r1+5));
+                    leftStepsParameters_.push_back( std::vector<double>(l2, l2+5));
+                    rightStepsParameters_.push_back(std::vector<double>(r2, r2+5));
+                    leftStepsParameters_.push_back( std::vector<double>(l3, l3+5));
+                    rightStepsParameters_.push_back(std::vector<double>(r3, r3+5));
+                    leftStepsParameters_.push_back( std::vector<double>(l4, l4+5));
                 }
         };
     }

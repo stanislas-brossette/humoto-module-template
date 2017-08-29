@@ -20,9 +20,9 @@ namespace humoto
                 etools::Vector9 currentState_;
                 const ProblemParameters& pbParams_;
                 etools::SelectionMatrix velocity_selector_;
-                StateHistory stateHistory_;
                 StepPlan stepPlan_;
                 size_t currentStepIndex_;
+                Logger logger_;
 
                 etools::Matrix9 computeA()
                 {
@@ -79,13 +79,10 @@ namespace humoto
                 SimpleMPC(const ProblemParameters& pbParam)
                   : pbParams_(pbParam),
                   velocity_selector_(3,1),
-                  stateHistory_(pbParams_.t_),
-                  stepPlan_(pbParams_.leftSteps_, pbParams_.rightSteps_, pbParams_.t_),
-                  currentStepIndex_(0)
+                  stepPlan_(pbParams_.leftStepsParameters_, pbParams_.rightStepsParameters_, pbParams_.t_),
+                  currentStepIndex_(0),
+                  logger_(pbParams_.t_, stepPlan_)
                 {
-                  stateHistory_.setMinMax(stepPlan_.xMin(), stepPlan_.xMax(),
-                                          stepPlan_.yMin(), stepPlan_.yMax(),
-                                          stepPlan_.zMin(), stepPlan_.zMax());
                   computeA();
                   computeB();
                   computeD();
@@ -101,7 +98,7 @@ namespace humoto
                 const Eigen::MatrixXd& Ou() const {return Ou_;}
                 const Eigen::MatrixXd& Ox() const {return Ox_;}
                 const etools::Vector9& currentState() const { return currentState_;}
-                const StateHistory& stateHistory()const{return stateHistory_;}
+                const Logger& logger()const{return logger_;}
                 const StepPlan& stepPlan() const {return stepPlan_;}
                 
 
@@ -130,7 +127,6 @@ namespace humoto
                     currentState_(6) = model.state_.com_state_.position_(2);
                     currentState_(7) = model.state_.com_state_.velocity_(2);
                     currentState_(8) = model.state_.com_state_.acceleration_(2);
-
 
                     return(ControlProblemStatus::OK);
                 }
@@ -172,18 +168,15 @@ namespace humoto
                     state.com_state_.velocity_(2) = newState(7);
                     state.com_state_.acceleration_(2) = newState(8);
 
-                    stateHistory_.addStateAndControl(newState, solution.x_.segment(0,3));
+                    logger_.addStateAndControl(newState, solution.x_.segment(0,3));
 
-                    std::cout << "currentStepIndex_: " << currentStepIndex_ << std::endl;
+                    std::cout << "currentStepIndex: " << currentStepIndex_ << std::endl;
                     currentStepIndex_++;
 
                     return(state);
                 }
 
-                size_t getPreviewHorizonLength() const
-                {
-                  return pbParams_.n_;
-                }
+                size_t getPreviewHorizonLength() const { return pbParams_.n_; }
                 size_t currentStepIndex() const {return currentStepIndex_;}
 
 
@@ -196,7 +189,7 @@ namespace humoto
                  */
                 void log(   humoto::Logger & logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED,
                             const LogEntryName &parent = LogEntryName(),
-                            const std::string &name = "mpcwpg") const
+                            const std::string &name = "simple_mpc") const
                 {
                     LogEntryName subname = parent;
                     subname.add(name);

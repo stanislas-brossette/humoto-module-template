@@ -80,7 +80,7 @@ int main(int argc, char **argv)
             model.updateState(model_state);
             // -------------------------------------------------
         }
-        control_problem.stateHistory().plot();
+        control_problem.logger().plot();
         std::string command = "python plotFile.py";
         system(command.c_str());
         HUMOTO_LOG_RAW("Done.");

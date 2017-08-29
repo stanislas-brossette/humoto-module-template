@@ -18,10 +18,10 @@
 void setupHierarchy_v0(humoto::OptimizationProblem &opt_problem, const humoto::example::ProblemParameters& params)
 {
     // tasks, which are used in the control problem
-    humoto::TaskSharedPointer   task_cop_bounds      (new humoto::example::TaskCoPBounds(params.gainTaskCoPBounds_));
-    humoto::TaskSharedPointer   task_cop_pos_ref      (new humoto::example::TaskCoPPosRef(params.gainTaskCoPPosRef_));
-    humoto::TaskSharedPointer   task_com_velocity    (new humoto::example::TaskCoMVelocity(params.gainTaskVelocity_));
-    humoto::TaskSharedPointer   task_min_jerk      (new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
+    humoto::TaskSharedPointer task_cop_bounds(new humoto::example::TaskCoPBounds(params.gainTaskCoPBounds_));
+    humoto::TaskSharedPointer task_cop_pos_ref(new humoto::example::TaskCoPPosRef(params.gainTaskCoPPosRef_));
+    humoto::TaskSharedPointer task_com_velocity(new humoto::example::TaskCoMVelocity(params.gainTaskVelocity_));
+    humoto::TaskSharedPointer task_min_jerk(new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
 
     // reset the optimization problem
     opt_problem.reset(2);

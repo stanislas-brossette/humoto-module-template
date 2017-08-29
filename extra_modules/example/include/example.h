@@ -30,12 +30,12 @@ namespace humoto
 
 #include "humoto/walking.h"
 
-#include "tools/history.h"
-#include "example/step-plan.h"
-#include "example/common.h"
-#include "example/model-state.h"
+#include "example/step_plan.h"
+#include "tools/logger.h"
+#include "example/problem_parameters.h"
+#include "example/model_state.h"
 #include "example/model.h"
-#include "example/simple-mpc.h"
+#include "example/simple_mpc.h"
 #include "example/task_com_velocity.h"
 #include "example/task_cop_bounds.h"
 #include "example/task_cop_pos_ref.h"

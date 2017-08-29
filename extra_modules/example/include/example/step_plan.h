@@ -36,11 +36,26 @@ class HUMOTO_LOCAL StepPlan
 {
  public:
   StepPlan(){};
-  StepPlan(std::vector<Step> leftSteps, std::vector<Step> rightSteps, double T)
-      : leftSteps_(leftSteps), rightSteps_(rightSteps), T_(T)
+
+  StepPlan(const std::vector<std::vector<double> > & leftStepsParameters,
+      const std::vector<std::vector<double> > & rightStepsParameters, double T )
+    : T_(T)
   {
+    for (size_t i = 0; i < leftStepsParameters.size(); ++i)
+    {
+      HUMOTO_ASSERT( leftStepsParameters.at(i).size() == 5,
+          "[Config] each step parameter must be a size 5 vector]")
+      leftSteps_.push_back( Step(leftStepsParameters.at(i)));
+    }
+    for (size_t i = 0; i < rightStepsParameters.size(); ++i)
+    {
+      HUMOTO_ASSERT( rightStepsParameters.at(i).size() == 5,
+          "[Config] each step parameter must be a size 5 vector]")
+      rightSteps_.push_back( Step(rightStepsParameters.at(i)));
+    }
     computePlan(leftSteps_, rightSteps_, T_);
   }
+
 
   void computePlan(std::vector<Step> leftSteps,
                    std::vector<Step> rightSteps, double T)

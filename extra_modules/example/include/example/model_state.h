@@ -48,7 +48,15 @@ namespace humoto
 
 
                 // Returns the current state in vector form:
-                // x dx ddx y dy ddy z dz ddz
+                // [x;
+                //  dx;
+                //  ddx;
+                //  y;
+                //  dy;
+                //  ddy;
+                //  z;
+                //  dz;
+                //  ddz]
                 etools::Vector9 getStateVector()
                 {
                     etools::Vector9 currentState;
