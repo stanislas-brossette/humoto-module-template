@@ -16,7 +16,7 @@ namespace humoto
 namespace example
 {
 /// @brief Class containing the parameters of the problem. It can be configured through yaml file
-class HUMOTO_LOCAL ProblemParameters : public humoto::config::ConfigurableBase
+class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurableBase
 {
    public:
     /// @brief Gravity constant
@@ -102,8 +102,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::ConfigurableBase
         double l2[] = {0.6, 0.10, 0.0, 4.91, 5.99};
         double r2[] = {0.8, -0.10, 0.0, 5.91, 7.99};
         double l3[] = {1.0, 0.10, 0.0, 7.91, 8.99};
-        double r3[] = {1.3, -0.10, 0.0, 8.91, 13.0};
-        double l4[] = {1.6, 0.10, 0.0, 9.91, 13.0};
+        double r3[] = {1.3, -0.10, 0.0, 8.91, 30.0};
+        double l4[] = {1.6, 0.10, 0.0, 9.91, 30.0};
         leftStepsParameters_.push_back(std::vector<double>(l0, l0 + 5));
         rightStepsParameters_.push_back(std::vector<double>(r0, r0 + 5));
         leftStepsParameters_.push_back(std::vector<double>(l1, l1 + 5));
