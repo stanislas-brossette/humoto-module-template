@@ -1,5 +1,7 @@
-This is a demo of compiling external modules for Humoto, i.e., modules which
-are not stored in the main repository of Humoto.
+This is a simple Humoto module that implements the paper "Trajectory Free Linear Model Predictive Control for Stable Walking in the Presence of Strong Perturbations" by Pierre-Brice Wieber.
+This module is very simple and can be a good help to understand the basics of Humoto for beginners.
+I tried to make it as clean and clearly commented as possible, but feel free to give me feedbacks.
+This is a demo of compiling external modules for Humoto, i.e., modules which are not stored in the main repository of Humoto.
 
 Directory layout:
     humoto          -- a submodule which links the main repository of Humoto;
@@ -10,6 +12,6 @@ Directory layout:
 The example module is compiled with 'make all' command. You can learn the
 necessary cmake parameters for Humoto compilation scripts by reading Makefile.
 
-You can use this repository as a template for new Humoto modules -- for this
-purpose you have to replace the mock module 'extra_modules/example' with your
-code.
+This module is based on Humoto-module-template.
+
+To compile it, you need to modify the makefile line containing "~/profiles/devel/src/humoto/humoto-core/" and replace it with the location of the humoto-core sources on your system
