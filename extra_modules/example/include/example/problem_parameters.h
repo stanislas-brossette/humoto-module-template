@@ -95,6 +95,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief Sets the default values of the stepping plan
     void setDefaultStepParameters()
     {
+        //Create the default arrays of step parameters (x,y,z,tMin,tMax)
         double l0[] = {0, 0.10, 0.0, 0.0, 2.00};
         double r0[] = {0, -0.10, 0.0, 0.0, 2.99};
         double l1[] = {0.2, 0.10, 0.0, 2.91, 3.99};
@@ -104,6 +105,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         double l3[] = {1.0, 0.10, 0.0, 7.91, 8.99};
         double r3[] = {1.3, -0.10, 0.0, 8.91, 30.0};
         double l4[] = {1.6, 0.10, 0.0, 9.91, 30.0};
+        //Populate step plan parameters vectors with parameters
         leftStepsParameters_.push_back(std::vector<double>(l0, l0 + 5));
         rightStepsParameters_.push_back(std::vector<double>(r0, r0 + 5));
         leftStepsParameters_.push_back(std::vector<double>(l1, l1 + 5));
