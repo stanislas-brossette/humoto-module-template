@@ -19,6 +19,7 @@
 #include "example/model_state.h"
 #include "example/model.h"
 #include "example/simple_mpc.h"
+#include "example/mpc_vertical_motion.h"
 #include "example/task_com_velocity.h"
 #include "example/task_cop_bounds.h"
 #include "example/task_cop_pos_ref.h"

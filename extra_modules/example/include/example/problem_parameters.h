@@ -23,6 +23,12 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     double g_;
     /// @brief height of center of mass
     double h_CoM_;
+
+    /// @brief Min value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
+    double zetaMin_;
+    /// @brief Max value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
+    double zetaMax_;
+
     /// @brief length of one time step
     double t_;
     /// @brief number of time steps in horizon
@@ -31,8 +37,10 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     size_t nIterations_;
     /// @brief End time of the control
     double endTime_;
+
     /// @brief target com speed
     etools::Vector3 comVelRef_;
+
     /// @brief parameters of the right stepping plan
     std::vector<std::vector<double> > leftStepsParameters_;
     /// @brief parameters of the right stepping plan
@@ -53,6 +61,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
 #define HUMOTO_CONFIG_ENTRIES                      \
     HUMOTO_CONFIG_SCALAR_(g);                      \
     HUMOTO_CONFIG_SCALAR_(h_CoM);                  \
+    HUMOTO_CONFIG_SCALAR_(zetaMin);                  \
+    HUMOTO_CONFIG_SCALAR_(zetaMax);                  \
     HUMOTO_CONFIG_SCALAR_(t);                      \
     HUMOTO_CONFIG_SCALAR_(n);                      \
     HUMOTO_CONFIG_SCALAR_(endTime);                \
@@ -79,6 +89,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     {
         g_ = 9.81;
         h_CoM_ = 0.8;
+        zetaMin_ = -10;
+        zetaMax_ = 10;
         t_ = 0.005;
         n_ = 100;
         endTime_ = 10;
