@@ -18,9 +18,9 @@ namespace example
 /// @brief Task describing the CoM velocity following a reference value in the form of { Ax = b }
 class HUMOTO_LOCAL TaskCoMVelocity : public humoto::TaskAB
 {
-   protected:
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB);
+#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
+   protected:
 
     /// @brief Sets the defaults
     void setDefaults()

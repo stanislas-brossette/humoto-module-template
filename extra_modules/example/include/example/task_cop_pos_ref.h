@@ -23,7 +23,7 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
     Eigen::VectorXd zRef_;
 
    protected:
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB);
+#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
     /// @brief Sets the defaults

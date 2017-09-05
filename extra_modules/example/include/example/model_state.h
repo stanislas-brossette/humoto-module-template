@@ -20,7 +20,8 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState, public humoto::config
 {
    protected:
 #define HUMOTO_CONFIG_SECTION_ID "ModelState"
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_MEMBER_CLASS(com_state_, "com_state");
+#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_MEMBER_CLASS(com_state_, "com_state")
+#define HUMOTO_CONFIG_CONSTRUCTOR ModelState
 #include "humoto/config/define_accessors.h"
 
     /// @brief Sets the default values of the model state
@@ -36,7 +37,6 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState, public humoto::config
     humoto::rigidbody::PointMassState com_state_;
 
    public:
-    HUMOTO_DEFINE_CONFIG_CONSTRUCTORS(ModelState)
 
     /// @brief Default constructor
     ModelState() { setDefaults(); }

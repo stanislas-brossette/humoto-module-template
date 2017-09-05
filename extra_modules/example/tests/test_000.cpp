@@ -33,7 +33,7 @@ int main()
         std::string config_file_name = "extra_modules/example/tests/test_000.yaml";
 
         // yaml configuration file reader
-        humoto::config::Reader config_reader(config_file_name);
+        humoto::config::yaml::Reader config_reader(config_file_name);
 
         // optimization problem (a stack of tasks / hierarchy)
         humoto::OptimizationProblem opt_problem;
