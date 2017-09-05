@@ -25,7 +25,7 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
     Eigen::VectorXd zBoundsHigh_;
 
    protected:
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskALU);
+#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskALU)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
     /// @brief Sets the defaults

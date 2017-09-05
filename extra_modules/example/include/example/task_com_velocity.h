@@ -19,7 +19,7 @@ namespace example
 class HUMOTO_LOCAL TaskCoMVelocity : public humoto::TaskAB
 {
    protected:
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB);
+#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
     /// @brief Sets the defaults

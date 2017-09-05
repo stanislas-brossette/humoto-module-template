@@ -63,25 +63,25 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
 /// Those macros define the necessary tools to read the variables from a yaml configuration file
 #define HUMOTO_CONFIG_SECTION_ID "ProblemParameters"
 #define HUMOTO_CONFIG_ENTRIES                      \
-    HUMOTO_CONFIG_SCALAR_(g);                      \
-    HUMOTO_CONFIG_SCALAR_(h_CoM);                  \
-    HUMOTO_CONFIG_SCALAR_(zetaMin);                  \
-    HUMOTO_CONFIG_SCALAR_(zetaMax);                  \
-    HUMOTO_CONFIG_SCALAR_(t);                      \
-    HUMOTO_CONFIG_SCALAR_(n);                      \
-    HUMOTO_CONFIG_SCALAR_(endTime);                \
-    HUMOTO_CONFIG_COMPOUND_(comVelRef);            \
-    HUMOTO_CONFIG_SCALAR_(comHeightRef);            \
-    HUMOTO_CONFIG_COMPOUND_(leftStepsParameters);  \
-    HUMOTO_CONFIG_COMPOUND_(rightStepsParameters); \
-    HUMOTO_CONFIG_SCALAR_(gainTaskVelocity);       \
-    HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef);      \
-    HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk);        \
-    HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds);
+    HUMOTO_CONFIG_SCALAR_(g)                      \
+    HUMOTO_CONFIG_SCALAR_(h_CoM)                  \
+    HUMOTO_CONFIG_SCALAR_(zetaMin)                  \
+    HUMOTO_CONFIG_SCALAR_(zetaMax)                  \
+    HUMOTO_CONFIG_SCALAR_(t)                      \
+    HUMOTO_CONFIG_SCALAR_(n)                      \
+    HUMOTO_CONFIG_SCALAR_(endTime)                \
+    HUMOTO_CONFIG_COMPOUND_(comVelRef)            \
+    HUMOTO_CONFIG_SCALAR_(comHeightRef)            \
+    HUMOTO_CONFIG_COMPOUND_(leftStepsParameters)  \
+    HUMOTO_CONFIG_COMPOUND_(rightStepsParameters) \
+    HUMOTO_CONFIG_SCALAR_(gainTaskVelocity)       \
+    HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef)      \
+    HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk)        \
+    HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds)
+#define HUMOTO_CONFIG_CONSTRUCTOR ProblemParameters
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
    public:
-    HUMOTO_DEFINE_CONFIG_CONSTRUCTORS(ProblemParameters)
 
     /// @brief Default constructor
     ProblemParameters() { setDefaults(); }
