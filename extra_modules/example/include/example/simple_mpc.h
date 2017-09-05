@@ -19,7 +19,7 @@ namespace example
 /// found as solution of the optimization problem (on previous iteration)
 class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
 {
-   private:
+  private:
     // Matrices to update the state
     // x_{k_1} = A*x_k + B*u_k
     // y_{k_1} = D*x_k + E*u_k
@@ -117,7 +117,7 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
         return E_;
     }
 
-   public:
+  public:
     /// @brief Main constructor of the MPC problem, based on the problems parameters
     ///
     /// @param pbParam problems parameters

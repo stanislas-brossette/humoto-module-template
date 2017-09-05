@@ -16,7 +16,7 @@ namespace example
 {
 class HUMOTO_LOCAL Step
 {
-   public:
+  public:
     /// @brief Constructor for step
     ///
     /// @param x x
@@ -42,7 +42,7 @@ class HUMOTO_LOCAL Step
     /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
 
-   private:
+  private:
     double x_;
     double y_;
     double z_;
@@ -52,7 +52,7 @@ class HUMOTO_LOCAL Step
 
 class HUMOTO_LOCAL StepPlan
 {
-   public:
+  public:
     /// @brief Default constructor
     StepPlan(){};
 
@@ -203,7 +203,7 @@ class HUMOTO_LOCAL StepPlan
     /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
 
-   private:
+  private:
     /// @brief List of left foot steps
     std::vector<Step> leftSteps_;
     /// @brief List of right foot steps

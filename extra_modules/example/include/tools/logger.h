@@ -22,7 +22,7 @@ namespace example
 /// @brief Class used to log and display the CoM and CoP history
 class HUMOTO_LOCAL Logger
 {
-   public:
+  public:
     /// @brief Constructor
     Logger(double timeStep, const StepPlan& stepPlan, const ProblemParameters& pbParams)
         : timeStep_(timeStep), pbParams_(pbParams)
@@ -35,8 +35,8 @@ class HUMOTO_LOCAL Logger
         zMax_ = stepPlan.z();
         for (long i = 0; i < stepPlan.z().size(); ++i)
         {
-           zMin_(i) += pbParams_.zetaMin_*pbParams_.g_;
-           zMax_(i) += pbParams_.zetaMax_*pbParams_.g_;
+            zMin_(i) += pbParams_.zetaMin_ * pbParams_.g_;
+            zMax_(i) += pbParams_.zetaMax_ * pbParams_.g_;
         }
     }
 
@@ -157,18 +157,18 @@ class HUMOTO_LOCAL Logger
         logFile << "ax1.plot(t, xCoPMax, 'r-.', label='xCoPMax')\n";
         logFile << "ax2.plot(t, yCoPMax, 'b-.', label='yCoPMax')\n";
         logFile << "ax3.plot(t, zCoPMax, 'g-.', label='zCoPMax')\n";
-        //logFile << "ax1.plot(t, ddx, 'rx', label='ddx')\n";
-        //logFile << "ax2.plot(t, ddy, 'bx', label='ddy')\n";
-        //logFile << "ax3.plot(t, ddz, 'gx', label='ddz')\n";
+        // logFile << "ax1.plot(t, ddx, 'rx', label='ddx')\n";
+        // logFile << "ax2.plot(t, ddy, 'bx', label='ddy')\n";
+        // logFile << "ax3.plot(t, ddz, 'gx', label='ddz')\n";
         logFile << "ax1.set_xlabel('Time (s)')\n";
         logFile << "ax2.set_xlabel('Time (s)')\n";
         logFile << "ax3.set_xlabel('Time (s)')\n";
         logFile << "ax1.set_ylabel('x (m)')\n";
         logFile << "ax2.set_ylabel('y (m)')\n";
         logFile << "ax3.set_ylabel('z (m)')\n";
-        //logFile << "plt.ylabel('positions (m)')\n";
-        //logFile << "plt.ylim(-0.5,1.8)\n";
-        //logFile << "plt.title('Positions')\n";
+        // logFile << "plt.ylabel('positions (m)')\n";
+        // logFile << "plt.ylim(-0.5,1.8)\n";
+        // logFile << "plt.title('Positions')\n";
         logFile << "ax1.legend(loc='upper center', shadow=True)\n";
         logFile << "ax2.legend(loc='upper center', shadow=True)\n";
         logFile << "ax3.legend(loc='upper center', shadow=True)\n";
@@ -191,20 +191,20 @@ class HUMOTO_LOCAL Logger
         // logFile << "ax4.set_title('Jerks')\n";
         // logFile << "legend = ax4.legend(loc='upper center', shadow=True)\n";
 
-        //logFile << "ax5.plot(x, y, 'r', label='traj CoM')\n";
-        //logFile << "ax5.plot(xCoPMin, yCoPMin, 'b', label='traj CoPMin')\n";
-        //logFile << "ax5.plot(xCoPMax, yCoPMax, 'b', label='traj CoPMax')\n";
-        //logFile << "ax5.set_title('Trajectories')\n";
-        //logFile << "ax5.set_xlabel('position x (m)')\n";
-        //logFile << "ax5.set_ylabel('position y (m)')\n";
-        //logFile << "legend = ax5.legend(loc='upper center', shadow=True)\n";
+        // logFile << "ax5.plot(x, y, 'r', label='traj CoM')\n";
+        // logFile << "ax5.plot(xCoPMin, yCoPMin, 'b', label='traj CoPMin')\n";
+        // logFile << "ax5.plot(xCoPMax, yCoPMax, 'b', label='traj CoPMax')\n";
+        // logFile << "ax5.set_title('Trajectories')\n";
+        // logFile << "ax5.set_xlabel('position x (m)')\n";
+        // logFile << "ax5.set_ylabel('position y (m)')\n";
+        // logFile << "legend = ax5.legend(loc='upper center', shadow=True)\n";
 
         logFile << "plt.axis('auto')\n";
         logFile << "plt.show()\n";
         logFile.close();
     }
 
-   private:
+  private:
     std::vector<Eigen::Vector3d> positionsCoM_;
     std::vector<Eigen::Vector3d> positionsCoPMin_;
     std::vector<Eigen::Vector3d> positionsCoPMax_;

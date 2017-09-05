@@ -18,7 +18,7 @@ namespace example
 /// @brief Class containing the parameters of the problem. It can be configured through yaml file
 class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurableBase
 {
-   public:
+  public:
     /// @brief Gravity constant
     double g_;
     /// @brief height of center of mass
@@ -59,19 +59,19 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief gain of the CoP position reference task
     double gainTaskCoPPosRef_;
 
-   protected:
+  protected:
 /// Those macros define the necessary tools to read the variables from a yaml configuration file
 #define HUMOTO_CONFIG_SECTION_ID "ProblemParameters"
-#define HUMOTO_CONFIG_ENTRIES                      \
+#define HUMOTO_CONFIG_ENTRIES                     \
     HUMOTO_CONFIG_SCALAR_(g)                      \
     HUMOTO_CONFIG_SCALAR_(h_CoM)                  \
-    HUMOTO_CONFIG_SCALAR_(zetaMin)                  \
-    HUMOTO_CONFIG_SCALAR_(zetaMax)                  \
+    HUMOTO_CONFIG_SCALAR_(zetaMin)                \
+    HUMOTO_CONFIG_SCALAR_(zetaMax)                \
     HUMOTO_CONFIG_SCALAR_(t)                      \
     HUMOTO_CONFIG_SCALAR_(n)                      \
     HUMOTO_CONFIG_SCALAR_(endTime)                \
     HUMOTO_CONFIG_COMPOUND_(comVelRef)            \
-    HUMOTO_CONFIG_SCALAR_(comHeightRef)            \
+    HUMOTO_CONFIG_SCALAR_(comHeightRef)           \
     HUMOTO_CONFIG_COMPOUND_(leftStepsParameters)  \
     HUMOTO_CONFIG_COMPOUND_(rightStepsParameters) \
     HUMOTO_CONFIG_SCALAR_(gainTaskVelocity)       \
@@ -81,8 +81,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
 #define HUMOTO_CONFIG_CONSTRUCTOR ProblemParameters
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
-   public:
-
+  public:
     /// @brief Default constructor
     ProblemParameters() { setDefaults(); }
 
@@ -113,7 +112,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief Sets the default values of the stepping plan
     void setDefaultStepParameters()
     {
-        //Create the default arrays of step parameters (x,y,z,tMin,tMax)
+        // Create the default arrays of step parameters (x,y,z,tMin,tMax)
         double l0[] = {0, 0.10, 0.0, 0.0, 2.00};
         double r0[] = {0, -0.10, 0.0, 0.0, 2.99};
         double l1[] = {0.2, 0.10, 0.0, 2.91, 3.99};
@@ -123,7 +122,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         double l3[] = {1.0, 0.10, 0.0, 7.91, 8.99};
         double r3[] = {1.3, -0.10, 0.0, 8.91, 30.0};
         double l4[] = {1.6, 0.10, 0.0, 9.91, 30.0};
-        //Populate step plan parameters vectors with parameters
+        // Populate step plan parameters vectors with parameters
         leftStepsParameters_.push_back(std::vector<double>(l0, l0 + 5));
         rightStepsParameters_.push_back(std::vector<double>(r0, r0 + 5));
         leftStepsParameters_.push_back(std::vector<double>(l1, l1 + 5));

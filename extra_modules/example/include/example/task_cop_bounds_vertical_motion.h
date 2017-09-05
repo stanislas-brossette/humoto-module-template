@@ -18,13 +18,13 @@ namespace example
 /// @brief Task describing the CoP location in the sustentation polygon in the form { l < Ax < u}
 class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
 {
-   private:
+  private:
     /// @brief Lower bounds for the CoP along the preview horizon
     Eigen::VectorXd zBoundsLow_;
     /// @brief Upper bounds for the CoP along the preview horizon
     Eigen::VectorXd zBoundsHigh_;
 
-   protected:
+  protected:
 #define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskALU)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
@@ -38,7 +38,7 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
     /// @brief Finalizes the class initialization
     void finalize() { TaskALU::finalize(); }
 
-   public:
+  public:
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
@@ -54,7 +54,8 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
     {
         std::cout << "Form CoP bounds vertical motion task:" << std::endl;
         // Downcast the control problem into a simpleMPC type
-        const humoto::example::MPCVerticalMotion &mpc = dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
+        const humoto::example::MPCVerticalMotion &mpc =
+            dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
 
         // Initialize the matrices A and b
         Eigen::MatrixXd &A = getA();

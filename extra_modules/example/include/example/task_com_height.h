@@ -18,7 +18,7 @@ namespace example
 /// @brief Task describing the CoM height being as close as possible to a reference height in the form of { Ax = b }
 class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
 {
-   protected:
+  protected:
 #define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
@@ -32,7 +32,7 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
     /// @brief Finalizes the class initialization
     void finalize() { TaskAB::finalize(); }
 
-   public:
+  public:
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
@@ -48,7 +48,8 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
     {
         std::cout << "Form CoM Height task:" << std::endl;
         // Downcast the control problem into a simpleMPC type
-        const humoto::example::MPCVerticalMotion &mpc = dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
+        const humoto::example::MPCVerticalMotion &mpc =
+            dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
 
         // Initialize the matrices A and b
         Eigen::MatrixXd &A = getA();
@@ -56,14 +57,13 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
 
         // Setup the reference velocity along the preview horizon
         Eigen::VectorXd cHeightRef;
-        if (cHeightRef.size() != (long)mpc.getPreviewHorizonLength())
-            cHeightRef.resize(mpc.getPreviewHorizonLength());
+        if (cHeightRef.size() != (long)mpc.getPreviewHorizonLength()) cHeightRef.resize(mpc.getPreviewHorizonLength());
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
             cHeightRef(i) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().comHeightRef_;
         }
 
-        etools::SelectionMatrix posZselector(9,6);
+        etools::SelectionMatrix posZselector(9, 6);
         // Compute the A and b matrices
         A.noalias() = getGain() * (posZselector * mpc.Uu());
         b.noalias() = -getGain() * (posZselector * mpc.Ux() * mpc.currentState() - cHeightRef);

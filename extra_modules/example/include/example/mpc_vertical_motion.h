@@ -19,7 +19,7 @@ namespace example
 /// found as solution of the optimization problem (on previous iteration)
 class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
 {
-   private:
+  private:
     // timestep
     double t_;
 
@@ -44,15 +44,15 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     Eigen::MatrixXd Ou_;
 
     /// @brief Current state of the model
-    etools::Vector9 currentState_;
+    etools::Vector9 current_state_;
     /// @brief reference to the parameters of the problem
-    const ProblemParameters& pbParams_;
+    const ProblemParameters& pb_params_;
     /// @brief Matrix to select velocities out of the state vector
     etools::SelectionMatrix velocity_selector_;
     /// @brief Plan for the steps to take (predefined)
-    StepPlan stepPlan_;
+    StepPlan step_plan_;
     /// @brief Current step index
-    size_t currentStepIndex_;
+    size_t current_step_index_;
     /// @brief logger
     Logger logger_;
 
@@ -106,10 +106,10 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     etools::Matrix6x9 computeD()
     {
         D_.setZero();
-        D_.block(0,0,3,3) = Ablock_;
-        D_.block(3,0,3,3) = Ablock_;
-        D_.block(0,6,3,3) = -pbParams_.zetaMin_*Ablock_;
-        D_.block(3,6,3,3) = -pbParams_.zetaMax_*Ablock_;
+        D_.block(0, 0, 3, 3) = Ablock_;
+        D_.block(3, 0, 3, 3) = Ablock_;
+        D_.block(0, 6, 3, 3) = -pb_params_.zetaMin_ * Ablock_;
+        D_.block(3, 6, 3, 3) = -pb_params_.zetaMax_ * Ablock_;
         return D_;
     }
 
@@ -120,25 +120,25 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     etools::Matrix6x3 computeE()
     {
         E_.setZero();
-        E_.block(0,0,3,1) = Bblock_;
-        E_.block(3,0,3,1) = Bblock_;
-        E_.block(0,2,3,1) = -pbParams_.zetaMin_*Bblock_;
-        E_.block(3,2,3,1) = -pbParams_.zetaMax_*Bblock_;
+        E_.block(0, 0, 3, 1) = Bblock_;
+        E_.block(3, 0, 3, 1) = Bblock_;
+        E_.block(0, 2, 3, 1) = -pb_params_.zetaMin_ * Bblock_;
+        E_.block(3, 2, 3, 1) = -pb_params_.zetaMax_ * Bblock_;
         return E_;
     }
 
-   public:
+  public:
     /// @brief Main constructor of the MPC problem, based on the problems parameters
     ///
     /// @param pbParam problems parameters
     MPCVerticalMotion(const ProblemParameters& pbParam)
-        : pbParams_(pbParam),
+        : pb_params_(pbParam),
           velocity_selector_(3, 1),
-          stepPlan_(pbParams_.leftStepsParameters_, pbParams_.rightStepsParameters_, pbParams_.t_),
-          currentStepIndex_(0),
-          logger_(pbParams_.t_, stepPlan_, pbParams_)
+          step_plan_(pb_params_.leftStepsParameters_, pb_params_.rightStepsParameters_, pb_params_.t_),
+          current_step_index_(0),
+          logger_(pb_params_.t_, step_plan_, pb_params_)
     {
-        t_ = pbParams_.t_;
+        t_ = pb_params_.t_;
         // compute all the A, B, D, E matrices
         computeAblock();
         computeBblock();
@@ -147,12 +147,12 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         computeD();
         computeE();
         // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
-        condenseTimeInvariant(Ux_, Uu_, pbParams_.n_, A_, B_);
+        condenseTimeInvariant(Ux_, Uu_, pb_params_.n_, A_, B_);
         condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
     }
 
     /// @brief Getter for pbParams
-    const ProblemParameters& pbParams() const { return pbParams_; }
+    const ProblemParameters& pbParams() const { return pb_params_; }
     /// @brief Getter for velocity_selector
     const etools::SelectionMatrix& velocity_selector() const { return velocity_selector_; }
     /// @brief Getter for Uu
@@ -164,11 +164,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief Getter for Ox
     const Eigen::MatrixXd& Ox() const { return Ox_; }
     /// @brief Getter for currentState
-    const etools::Vector9& currentState() const { return currentState_; }
+    const etools::Vector9& currentState() const { return current_state_; }
     /// @brief Getter for logger
     const Logger& logger() const { return logger_; }
     /// @brief Getter for stepPlan
-    const StepPlan& stepPlan() const { return stepPlan_; }
+    const StepPlan& stepPlan() const { return step_plan_; }
 
     ///@brief Update control problem from model
     ///
@@ -183,7 +183,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
         sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.n_ * 3);
 
-        currentState_ = model.state_.getStateVector();
+        current_state_ = model.state_.getStateVector();
 
         return (ControlProblemStatus::OK);
     }
@@ -199,25 +199,25 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     {
         humoto::example::ModelState state;
 
-        currentState_ = model.state_.getStateVector();
+        current_state_ = model.state_.getStateVector();
 
         etools::Vector9 newState;
-        newState = A_ * currentState_ + B_ * solution.x_.segment(0, 3);
+        newState = A_ * current_state_ + B_ * solution.x_.segment(0, 3);
         state.updateFromVector(newState);
 
         // Add the new state and control to the logger
         logger_.addStateAndControl(newState, solution.x_.segment(0, 3));
 
-        std::cout << "currentStepIndex: " << currentStepIndex_ << std::endl;
-        currentStepIndex_++;
+        std::cout << "currentStepIndex: " << current_step_index_ << std::endl;
+        current_step_index_++;
 
         return (state);
     }
 
     /// @brief Getter for PreviewHorizonLength
-    size_t getPreviewHorizonLength() const { return pbParams_.n_; }
+    size_t getPreviewHorizonLength() const { return pb_params_.n_; }
     /// @brief Getter for currentStepIndex
-    size_t currentStepIndex() const { return currentStepIndex_; }
+    size_t currentStepIndex() const { return current_step_index_; }
 
     /// @brief Log
     ///

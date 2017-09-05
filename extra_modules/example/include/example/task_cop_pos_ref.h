@@ -18,11 +18,11 @@ namespace example
 /// @brief Task describing the CoP position following a reference value in the form of { Ax = b }
 class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
 {
-   private:
+  private:
     /// @brief Reference trajectory of the CoP
     Eigen::VectorXd zRef_;
 
-   protected:
+  protected:
 #define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAB)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
@@ -36,7 +36,7 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
     /// @brief Finalizes the class initialization
     void finalize() { TaskAB::finalize(); }
 
-   public:
+  public:
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
@@ -51,7 +51,8 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
               const humoto::ControlProblem &control_problem)
     {
         // Downcast the control problem into a MPCVerticalMotion type
-        const humoto::example::MPCVerticalMotion &mpc = dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
+        const humoto::example::MPCVerticalMotion &mpc =
+            dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
 
         // Initialize the matrices A and b
         Eigen::MatrixXd &A = getA();

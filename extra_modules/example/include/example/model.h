@@ -18,11 +18,11 @@ namespace example
 /// @brief Wrapper class that handles the model state and its updates
 class HUMOTO_LOCAL Model : public humoto::Model
 {
-   public:
+  public:
     /// @brief state of the model
     humoto::example::ModelState state_;
 
-   public:
+  public:
     /// @brief Default constructor
     Model() {}
 

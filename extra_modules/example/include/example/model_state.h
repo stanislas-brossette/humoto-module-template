@@ -18,7 +18,7 @@ namespace example
 /// @brief Class containing the model of the system to be controlled
 class HUMOTO_LOCAL ModelState : public humoto::ModelState, public humoto::config::ConfigurableBase
 {
-   protected:
+  protected:
 #define HUMOTO_CONFIG_SECTION_ID "ModelState"
 #define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_MEMBER_CLASS(com_state_, "com_state")
 #define HUMOTO_CONFIG_CONSTRUCTOR ModelState
@@ -32,12 +32,11 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState, public humoto::config
         com_state_.acceleration_ << 0, 0, 0;
     }
 
-   public:
+  public:
     /// @brief State of the CoM
     humoto::rigidbody::PointMassState com_state_;
 
-   public:
-
+  public:
     /// @brief Default constructor
     ModelState() { setDefaults(); }
 
