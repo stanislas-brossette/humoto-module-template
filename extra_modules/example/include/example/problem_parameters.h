@@ -40,6 +40,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
 
     /// @brief target com speed
     etools::Vector3 comVelRef_;
+    /// @brief target com height
+    double comHeightRef_;
 
     /// @brief parameters of the right stepping plan
     std::vector<std::vector<double> > leftStepsParameters_;
@@ -48,6 +50,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
 
     /// @brief gain of the CoM velocity task
     double gainTaskVelocity_;
+    /// @brief gain of the CoM Height task
+    double gainTaskCoMHeight_;
     /// @brief gain of the Min Jerk task
     double gainTaskMinJerk_;
     /// @brief gain of the CoP bounds task
@@ -67,6 +71,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(n);                      \
     HUMOTO_CONFIG_SCALAR_(endTime);                \
     HUMOTO_CONFIG_COMPOUND_(comVelRef);            \
+    HUMOTO_CONFIG_SCALAR_(comHeightRef);            \
     HUMOTO_CONFIG_COMPOUND_(leftStepsParameters);  \
     HUMOTO_CONFIG_COMPOUND_(rightStepsParameters); \
     HUMOTO_CONFIG_SCALAR_(gainTaskVelocity);       \
@@ -98,6 +103,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         comVelRef_(1) = 0;
         comVelRef_(2) = 0;
         gainTaskVelocity_ = 100;
+        gainTaskCoMHeight_ = 100;
         gainTaskCoPBounds_ = 100;
         gainTaskCoPPosRef_ = 100;
         gainTaskMinJerk_ = 100;

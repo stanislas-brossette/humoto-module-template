@@ -50,15 +50,15 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
-        // Downcast the control problem into a simpleMPC type
-        const humoto::example::SimpleMPC &mpc = dynamic_cast<const humoto::example::SimpleMPC &>(control_problem);
+        // Downcast the control problem into a MPCVerticalMotion type
+        const humoto::example::MPCVerticalMotion &mpc = dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
 
         // Initialize the matrices A and b
         Eigen::MatrixXd &A = getA();
         Eigen::VectorXd &b = getB();
 
         // Setup the reference trajectory along the preview horizon (it is the middle of the bounds)
-        if (zRef_.size() != 2 * (long)mpc.getPreviewHorizonLength()) zRef_.resize(2 * mpc.getPreviewHorizonLength());
+        if (zRef_.size() != 6 * (long)mpc.getPreviewHorizonLength()) zRef_.resize(6 * mpc.getPreviewHorizonLength());
 
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
@@ -66,8 +66,14 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
             double xMax = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
             double yMin = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
             double yMax = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
-            zRef_(2 * i) = 0.5 * (xMin + xMax);
-            zRef_(2 * i + 1) = 0.5 * (yMin + yMax);
+            double zMin = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMin_ * mpc.pbParams().g_;
+            double zMax = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMax_ * mpc.pbParams().g_;
+            zRef_(6 * i) = 0.5 * (xMin + xMax);
+            zRef_(6 * i + 1) = 0.5 * (yMin + yMax);
+            zRef_(6 * i + 2) = 0.5 * (zMin + zMax);
+            zRef_(6 * i + 3) = 0.5 * (xMin + xMax);
+            zRef_(6 * i + 4) = 0.5 * (yMin + yMax);
+            zRef_(6 * i + 5) = 0.5 * (zMin + zMax);
         }
 
         // Compute the A and b matrices

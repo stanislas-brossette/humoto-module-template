@@ -56,7 +56,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief logger
     Logger logger_;
 
-    Eigen::Matrix3d computeAblock() const
+    Eigen::Matrix3d computeAblock()
     {
         Ablock_.setIdentity();
         Ablock_(0, 1) = t_;
@@ -64,7 +64,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         Ablock_(1, 2) = t_;
         return Ablock_;
     }
-    Eigen::Vector3d computeBblock() const
+    Eigen::Vector3d computeBblock()
     {
         Bblock_.setIdentity();
         Bblock_(0) = t_ * t_ * t_ / 6.0;
@@ -93,9 +93,9 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     etools::Matrix9x3 computeB()
     {
         B_.setZero();
-        B_.block(0, 0, 3, 1) = Bblock;
-        B_.block(3, 1, 3, 1) = Bblock;
-        B_.block(6, 2, 3, 1) = Bblock;
+        B_.block(0, 0, 3, 1) = Bblock_;
+        B_.block(3, 1, 3, 1) = Bblock_;
+        B_.block(6, 2, 3, 1) = Bblock_;
         return B_;
     }
 
@@ -136,7 +136,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
           velocity_selector_(3, 1),
           stepPlan_(pbParams_.leftStepsParameters_, pbParams_.rightStepsParameters_, pbParams_.t_),
           currentStepIndex_(0),
-          logger_(pbParams_.t_, stepPlan_)
+          logger_(pbParams_.t_, stepPlan_, pbParams_)
     {
         t_ = pbParams_.t_;
         // compute all the A, B, D, E matrices

@@ -26,7 +26,7 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState, public humoto::config
     /// @brief Sets the default values of the model state
     void setDefaults()
     {
-        com_state_.position_ << 0, 0, 0;
+        com_state_.position_ << 0, 0, 0.8;
         com_state_.velocity_ << 0, 0, 0;
         com_state_.acceleration_ << 0, 0, 0;
     }

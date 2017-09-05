@@ -16,7 +16,7 @@ namespace humoto
 namespace example
 {
 /// @brief Task describing the CoP location in the sustentation polygon in the form { l < Ax < u}
-class HUMOTO_LOCAL TaskCoPBounds : public humoto::TaskALU
+class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
 {
    private:
     /// @brief Lower bounds for the CoP along the preview horizon
@@ -42,7 +42,7 @@ class HUMOTO_LOCAL TaskCoPBounds : public humoto::TaskALU
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
-    TaskCoPBounds(const double gain = 1) : TaskALU("TaskCoPBounds", gain) {}
+    TaskCoPBoundsVerticalMotion(const double gain = 1) : TaskALU("TaskCoPBoundsVerticalMotion", gain) {}
 
     /// @brief Forms the matrices A, l and u to represent the task
     ///
@@ -52,8 +52,9 @@ class HUMOTO_LOCAL TaskCoPBounds : public humoto::TaskALU
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
+        std::cout << "Form CoP bounds vertical motion task:" << std::endl;
         // Downcast the control problem into a simpleMPC type
-        const humoto::example::SimpleMPC &mpc = dynamic_cast<const humoto::example::SimpleMPC &>(control_problem);
+        const humoto::example::MPCVerticalMotion &mpc = dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
 
         // Initialize the matrices A and b
         Eigen::MatrixXd &A = getA();
@@ -61,23 +62,40 @@ class HUMOTO_LOCAL TaskCoPBounds : public humoto::TaskALU
         Eigen::VectorXd &u = getUpperBounds();
 
         // Setup the bounds along the preview horizon
-        if (zBoundsHigh_.size() != 2 * (long)mpc.getPreviewHorizonLength())
-            zBoundsHigh_.resize(2 * mpc.getPreviewHorizonLength());
-        if (zBoundsLow_.size() != 2 * (long)mpc.getPreviewHorizonLength())
-            zBoundsLow_.resize(2 * mpc.getPreviewHorizonLength());
+        if (zBoundsHigh_.size() != 6 * (long)mpc.getPreviewHorizonLength())
+            zBoundsHigh_.resize(6 * mpc.getPreviewHorizonLength());
+        if (zBoundsLow_.size() != 6 * (long)mpc.getPreviewHorizonLength())
+            zBoundsLow_.resize(6 * mpc.getPreviewHorizonLength());
 
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
-            zBoundsLow_(2 * i) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(2 * i + 1) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(2 * i) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(2 * i + 1) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i + 1) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i + 2) =
+                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMin_ * mpc.pbParams().g_;
+
+            zBoundsLow_(6 * i + 3) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i + 4) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i + 5) =
+                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMin_ * mpc.pbParams().g_;
+
+            zBoundsHigh_(6 * i) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
+            zBoundsHigh_(6 * i + 1) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
+            zBoundsHigh_(6 * i + 2) =
+                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMax_ * mpc.pbParams().g_;
+            zBoundsHigh_(6 * i + 3) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
+            zBoundsHigh_(6 * i + 4) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
+            zBoundsHigh_(6 * i + 5) =
+                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMax_ * mpc.pbParams().g_;
         }
 
         // Compute the A, l and u matrices
         A.noalias() = getGain() * mpc.Ou();
         l.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsLow_);
         u.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsHigh_);
+        std::cout << "A: \n" << A << std::endl;
+        std::cout << "l: \n" << l << std::endl;
+        std::cout << "u: \n" << u << std::endl;
     };
 };
 }

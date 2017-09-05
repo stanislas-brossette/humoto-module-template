@@ -126,7 +126,7 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
           velocity_selector_(3, 1),
           stepPlan_(pbParams_.leftStepsParameters_, pbParams_.rightStepsParameters_, pbParams_.t_),
           currentStepIndex_(0),
-          logger_(pbParams_.t_, stepPlan_)
+          logger_(pbParams_.t_, stepPlan_, pbParams_)
     {
         // compute all the A, B, D, E matrices
         computeA();

@@ -24,14 +24,20 @@ class HUMOTO_LOCAL Logger
 {
    public:
     /// @brief Constructor
-    Logger(double timeStep, const StepPlan& stepPlan) : timeStep_(timeStep)
+    Logger(double timeStep, const StepPlan& stepPlan, const ProblemParameters& pbParams)
+        : timeStep_(timeStep), pbParams_(pbParams)
     {
         xMin_ = stepPlan.xMin();
         xMax_ = stepPlan.xMax();
         yMin_ = stepPlan.yMin();
         yMax_ = stepPlan.yMax();
-        zMin_ = stepPlan.zMin();
-        zMax_ = stepPlan.zMax();
+        zMin_ = stepPlan.z();
+        zMax_ = stepPlan.z();
+        for (long i = 0; i < stepPlan.z().size(); ++i)
+        {
+           zMin_(i) += pbParams_.zetaMin_*pbParams_.g_;
+           zMax_(i) += pbParams_.zetaMax_*pbParams_.g_;
+        }
     }
 
     /// @brief Adds a single state and control to the history
@@ -40,7 +46,7 @@ class HUMOTO_LOCAL Logger
     /// @param control control
     void addStateAndControl(const etools::Vector9 state, const etools::Vector3 control)
     {
-        Eigen::Vector3d position, velocity, acceleration, cop;
+        Eigen::Vector3d position, velocity, acceleration, copMin, copMax;
         position << state(0), state(3), state(6);
         velocity << state(1), state(4), state(7);
         acceleration << state(2), state(5), state(8);
@@ -48,17 +54,22 @@ class HUMOTO_LOCAL Logger
         velocitiesCoM_.push_back(velocity);
         accelerationsCoM_.push_back(acceleration);
         jerksCoM_.push_back(control);
-        cop(0) = position(0) - 0.5 / 9.81 * acceleration(0);
-        cop(1) = position(1) - 0.5 / 9.81 * acceleration(1);
-        cop(2) = 0;
-        positionsCoP_.push_back(cop);
+        copMin(0) = position(0) - pbParams_.zetaMin_ * acceleration(0);
+        copMin(1) = position(1) - pbParams_.zetaMin_ * acceleration(1);
+        copMin(2) = position(2) - pbParams_.zetaMin_ * acceleration(2);
+        copMax(0) = position(0) - pbParams_.zetaMax_ * acceleration(0);
+        copMax(1) = position(1) - pbParams_.zetaMax_ * acceleration(1);
+        copMax(2) = position(2) - pbParams_.zetaMax_ * acceleration(2);
+        positionsCoPMin_.push_back(copMin);
+        positionsCoPMax_.push_back(copMax);
     }
 
     Eigen::MatrixXd getPositionsAsMatrix() const { return toMatrix(positionsCoM_); }
     Eigen::MatrixXd getVelocitiesAsMatrix() const { return toMatrix(velocitiesCoM_); }
     Eigen::MatrixXd getAccelerationsAsMatrix() const { return toMatrix(accelerationsCoM_); }
     Eigen::MatrixXd getJerksAsMatrix() const { return toMatrix(jerksCoM_); }
-    Eigen::MatrixXd getCoPsAsMatrix() const { return toMatrix(positionsCoP_); }
+    Eigen::MatrixXd getCoPMinsAsMatrix() const { return toMatrix(positionsCoPMin_); }
+    Eigen::MatrixXd getCoPMaxsAsMatrix() const { return toMatrix(positionsCoPMax_); }
 
     /// @brief Transforms a list of vector3 into a matrix
     ///
@@ -99,7 +110,8 @@ class HUMOTO_LOCAL Logger
                 << "t = np.arange(0.," << (double)size() * (double)timeStep_ << ", " << timeStep_ << ")\n\n";
 
         Eigen::MatrixXd positions(toMatrix(positionsCoM_));
-        Eigen::MatrixXd positionsCoP(toMatrix(positionsCoP_));
+        Eigen::MatrixXd positionsCoPMin(toMatrix(positionsCoPMin_));
+        Eigen::MatrixXd positionsCoPMax(toMatrix(positionsCoPMax_));
         Eigen::MatrixXd velocities(toMatrix(velocitiesCoM_));
         Eigen::MatrixXd accelerations(toMatrix(accelerationsCoM_));
         Eigen::MatrixXd jerks(toMatrix(jerksCoM_));
@@ -107,8 +119,12 @@ class HUMOTO_LOCAL Logger
         logFile << "x = np.array(" << positions.col(0).transpose().format(cleanFmt) << ")\n";
         logFile << "y = np.array(" << positions.col(1).transpose().format(cleanFmt) << ")\n";
         logFile << "z = np.array(" << positions.col(2).transpose().format(cleanFmt) << ")\n";
-        logFile << "xCoP = np.array(" << positionsCoP.col(0).transpose().format(cleanFmt) << ")\n";
-        logFile << "yCoP = np.array(" << positionsCoP.col(1).transpose().format(cleanFmt) << ")\n";
+        logFile << "xCoPMin = np.array(" << positionsCoPMin.col(0).transpose().format(cleanFmt) << ")\n";
+        logFile << "yCoPMin = np.array(" << positionsCoPMin.col(1).transpose().format(cleanFmt) << ")\n";
+        logFile << "zCoPMin = np.array(" << positionsCoPMin.col(2).transpose().format(cleanFmt) << ")\n";
+        logFile << "xCoPMax = np.array(" << positionsCoPMax.col(0).transpose().format(cleanFmt) << ")\n";
+        logFile << "yCoPMax = np.array(" << positionsCoPMax.col(1).transpose().format(cleanFmt) << ")\n";
+        logFile << "zCoPMax = np.array(" << positionsCoPMax.col(2).transpose().format(cleanFmt) << ")\n";
         logFile << "xMin = np.array(" << xMin_.transpose().format(cleanFmt) << ")\n";
         logFile << "yMin = np.array(" << yMin_.transpose().format(cleanFmt) << ")\n";
         logFile << "zMin = np.array(" << zMin_.transpose().format(cleanFmt) << ")\n";
@@ -125,23 +141,37 @@ class HUMOTO_LOCAL Logger
         logFile << "dddy = np.array(" << jerks.col(1).transpose().format(cleanFmt) << ")\n";
         logFile << "dddz = np.array(" << jerks.col(2).transpose().format(cleanFmt) << ")\n";
 
-        logFile << "f, (ax1, ax5) = plt.subplots(2, sharex=False, sharey=False)\n";
-        logFile << "ax1.plot(t, x, 'r', label='x')\n";
-        logFile << "ax1.plot(t, y, 'b', label='y')\n";
-        logFile << "ax1.plot(t, z, 'g', label='z')\n";
-        logFile << "ax1.plot(t, xMin[0:len(t)], 'r--')\n";
-        logFile << "ax1.plot(t, yMin[0:len(t)], 'b--')\n";
-        logFile << "ax1.plot(t, zMin[0:len(t)], 'g--')\n";
-        logFile << "ax1.plot(t, xMax[0:len(t)], 'r--')\n";
-        logFile << "ax1.plot(t, yMax[0:len(t)], 'b--')\n";
-        logFile << "ax1.plot(t, zMax[0:len(t)], 'g--')\n";
-        logFile << "ax1.plot(t, xCoP, 'ro', label='xCoP')\n";
-        logFile << "ax1.plot(t, yCoP, 'bo', label='yCoP')\n";
+        logFile << "f, (ax1, ax2, ax3) = plt.subplots(3, sharex=False, sharey=False)\n";
+        logFile << "ax1.plot(t, x, 'r-', label='xCoM')\n";
+        logFile << "ax2.plot(t, y, 'b-', label='yCoM')\n";
+        logFile << "ax3.plot(t, z, 'g-', label='zCoM')\n";
+        logFile << "ax1.plot(t, xMin[0:len(t)], 'r^', label='xCoMMin')\n";
+        logFile << "ax2.plot(t, yMin[0:len(t)], 'b^', label='yCoMMin')\n";
+        logFile << "ax3.plot(t, zMin[0:len(t)], 'g^', label='zCoMMin')\n";
+        logFile << "ax1.plot(t, xMax[0:len(t)], 'rv', label='xCoMMax')\n";
+        logFile << "ax2.plot(t, yMax[0:len(t)], 'bv', label='yCoMMax')\n";
+        logFile << "ax3.plot(t, zMax[0:len(t)], 'gv', label='zCoMMax')\n";
+        logFile << "ax1.plot(t, xCoPMin, 'r--', label='xCoPMin')\n";
+        logFile << "ax2.plot(t, yCoPMin, 'b--', label='yCoPMin')\n";
+        logFile << "ax3.plot(t, zCoPMin, 'g--', label='zCoPMin')\n";
+        logFile << "ax1.plot(t, xCoPMax, 'r-.', label='xCoPMax')\n";
+        logFile << "ax2.plot(t, yCoPMax, 'b-.', label='yCoPMax')\n";
+        logFile << "ax3.plot(t, zCoPMax, 'g-.', label='zCoPMax')\n";
+        //logFile << "ax1.plot(t, ddx, 'rx', label='ddx')\n";
+        //logFile << "ax2.plot(t, ddy, 'bx', label='ddy')\n";
+        //logFile << "ax3.plot(t, ddz, 'gx', label='ddz')\n";
         logFile << "ax1.set_xlabel('Time (s)')\n";
-        logFile << "ax1.set_ylabel('positions (m)')\n";
-        logFile << "ax1.set_ylim(-0.5,1.8)\n";
-        logFile << "ax1.set_title('Positions')\n";
-        logFile << "legend = ax1.legend(loc='upper center', shadow=True)\n";
+        logFile << "ax2.set_xlabel('Time (s)')\n";
+        logFile << "ax3.set_xlabel('Time (s)')\n";
+        logFile << "ax1.set_ylabel('x (m)')\n";
+        logFile << "ax2.set_ylabel('y (m)')\n";
+        logFile << "ax3.set_ylabel('z (m)')\n";
+        //logFile << "plt.ylabel('positions (m)')\n";
+        //logFile << "plt.ylim(-0.5,1.8)\n";
+        //logFile << "plt.title('Positions')\n";
+        logFile << "ax1.legend(loc='upper center', shadow=True)\n";
+        logFile << "ax2.legend(loc='upper center', shadow=True)\n";
+        logFile << "ax3.legend(loc='upper center', shadow=True)\n";
 
         // logFile << "ax2.plot(t, dx, 'r', label='dx')\n";
         // logFile << "ax2.plot(t, dy, 'b', label='dy')\n";
@@ -161,12 +191,13 @@ class HUMOTO_LOCAL Logger
         // logFile << "ax4.set_title('Jerks')\n";
         // logFile << "legend = ax4.legend(loc='upper center', shadow=True)\n";
 
-        logFile << "ax5.plot(x, y, 'r', label='traj CoM')\n";
-        logFile << "ax5.plot(xCoP, yCoP, 'b', label='traj CoP')\n";
-        logFile << "ax5.set_title('Trajectories')\n";
-        logFile << "ax5.set_xlabel('position x (m)')\n";
-        logFile << "ax5.set_ylabel('position y (m)')\n";
-        logFile << "legend = ax5.legend(loc='upper center', shadow=True)\n";
+        //logFile << "ax5.plot(x, y, 'r', label='traj CoM')\n";
+        //logFile << "ax5.plot(xCoPMin, yCoPMin, 'b', label='traj CoPMin')\n";
+        //logFile << "ax5.plot(xCoPMax, yCoPMax, 'b', label='traj CoPMax')\n";
+        //logFile << "ax5.set_title('Trajectories')\n";
+        //logFile << "ax5.set_xlabel('position x (m)')\n";
+        //logFile << "ax5.set_ylabel('position y (m)')\n";
+        //logFile << "legend = ax5.legend(loc='upper center', shadow=True)\n";
 
         logFile << "plt.axis('auto')\n";
         logFile << "plt.show()\n";
@@ -175,7 +206,8 @@ class HUMOTO_LOCAL Logger
 
    private:
     std::vector<Eigen::Vector3d> positionsCoM_;
-    std::vector<Eigen::Vector3d> positionsCoP_;
+    std::vector<Eigen::Vector3d> positionsCoPMin_;
+    std::vector<Eigen::Vector3d> positionsCoPMax_;
     std::vector<Eigen::Vector3d> velocitiesCoM_;
     std::vector<Eigen::Vector3d> accelerationsCoM_;
     std::vector<Eigen::Vector3d> jerksCoM_;
@@ -186,6 +218,7 @@ class HUMOTO_LOCAL Logger
     Eigen::VectorXd zMin_;
     Eigen::VectorXd zMax_;
     double timeStep_;
+    const ProblemParameters& pbParams_;
 };
 } /* example */
 } /* humoto */

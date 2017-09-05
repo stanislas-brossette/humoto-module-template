@@ -1,12 +1,13 @@
 ProblemParameters:
   h_CoM: 0.8
   g: 9.81
-  zetaMin: -10
-  zetaMax: 10
-  t: 0.05
-  endTime: 20
-  n: 20
+  zetaMin: 0.01
+  zetaMax: 0.09
+  t: 0.10
+  endTime: 1
+  n: 4
   comVelRef: [0.1, 0.0, 0.0]
+  comHeightRef: 1.2
   gainTaskCoPBounds: 1
   gainTaskVelocity: 1
   gainTaskMinJerk: 1

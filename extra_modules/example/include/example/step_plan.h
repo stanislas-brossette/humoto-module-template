@@ -80,7 +80,7 @@ class HUMOTO_LOCAL StepPlan
         computePlan();
     }
 
-    /// @brief Computes the values of xMin, xMax, yMin, yMax, zMin and zMax (Sustentation polygon) for each time step
+    /// @brief Computes the values of xMin, xMax, yMin, yMax, z (Sustentation polygon) for each time step
     ///
     /// @param leftSteps list of left foot steps
     /// @param rightSteps list of right foot steps
@@ -114,10 +114,8 @@ class HUMOTO_LOCAL StepPlan
         yMax_.resize(nTimeSteps);
         yMin_.setZero();
         yMax_.setZero();
-        zMin_.resize(nTimeSteps);
-        zMax_.resize(nTimeSteps);
-        zMin_.setZero();
-        zMax_.setZero();
+        z_.resize(nTimeSteps);
+        z_.setZero();
 
         for (long iTimeStep = 0; iTimeStep < nTimeSteps; iTimeStep++)
         {
@@ -160,8 +158,7 @@ class HUMOTO_LOCAL StepPlan
                 xMax_[iTimeStep] = leftSteps_[iStepLeft].x() + stepXWidth_ / 2;
                 yMin_[iTimeStep] = leftSteps_[iStepLeft].y() - stepYWidth_ / 2;
                 yMax_[iTimeStep] = leftSteps_[iStepLeft].y() + stepYWidth_ / 2;
-                zMin_[iTimeStep] = leftSteps_[iStepLeft].z() - stepZWidth_ / 2;
-                zMax_[iTimeStep] = leftSteps_[iStepLeft].z() + stepZWidth_ / 2;
+                z_[iTimeStep] = leftSteps_[iStepLeft].z();
             }
             else if (singleSupportRight)
             {
@@ -169,8 +166,7 @@ class HUMOTO_LOCAL StepPlan
                 xMax_[iTimeStep] = rightSteps_[iStepRight].x() + stepXWidth_ / 2;
                 yMin_[iTimeStep] = rightSteps_[iStepRight].y() - stepYWidth_ / 2;
                 yMax_[iTimeStep] = rightSteps_[iStepRight].y() + stepYWidth_ / 2;
-                zMin_[iTimeStep] = rightSteps_[iStepRight].z() - stepZWidth_ / 2;
-                zMax_[iTimeStep] = rightSteps_[iStepRight].z() + stepZWidth_ / 2;
+                z_[iTimeStep] = rightSteps_[iStepRight].z();
             }
             else if (doubleSupport)
             {
@@ -186,8 +182,7 @@ class HUMOTO_LOCAL StepPlan
                 xMax_[iTimeStep] = maxX + stepXWidth_ / 2;
                 yMin_[iTimeStep] = rightSteps_[iStepRight].y() - stepYWidth_ / 2;
                 yMax_[iTimeStep] = leftSteps_[iStepLeft].y() + stepYWidth_ / 2;
-                zMin_[iTimeStep] = rightSteps_[iStepRight].z() - stepZWidth_ / 2;
-                zMax_[iTimeStep] = leftSteps_[iStepLeft].z() + stepZWidth_ / 2;
+                z_[iTimeStep] = rightSteps_[iStepRight].z();
             }
         }
     }
@@ -203,10 +198,8 @@ class HUMOTO_LOCAL StepPlan
     const Eigen::VectorXd& yMin() const { return yMin_; }
     /// @brief Getter for yMax
     const Eigen::VectorXd& yMax() const { return yMax_; }
-    /// @brief Getter for zMin
-    const Eigen::VectorXd& zMin() const { return zMin_; }
-    /// @brief Getter for zMax
-    const Eigen::VectorXd& zMax() const { return zMax_; }
+    /// @brief Getter for z
+    const Eigen::VectorXd& z() const { return z_; }
     /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
 
@@ -219,8 +212,7 @@ class HUMOTO_LOCAL StepPlan
     Eigen::VectorXd xMax_;
     Eigen::VectorXd yMin_;
     Eigen::VectorXd yMax_;
-    Eigen::VectorXd zMin_;
-    Eigen::VectorXd zMax_;
+    Eigen::VectorXd z_;
     double tMax_;
     double T_;
     /// @brief Width of foot along X
