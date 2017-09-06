@@ -52,7 +52,6 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
-        std::cout << "Form CoP bounds vertical motion task:" << std::endl;
         // Downcast the control problem into a simpleMPC type
         const humoto::example::MPCVerticalMotion &mpc =
             dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
@@ -70,33 +69,25 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
 
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
-            zBoundsLow_(6 * i) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i + 0) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
             zBoundsLow_(6 * i + 1) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 2) =
-                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMin_ * mpc.pbParams().g_;
-
+            zBoundsLow_(6 * i + 2) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMin_ * mpc.pbParams().g_;
             zBoundsLow_(6 * i + 3) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 4) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 5) =
-                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMin_ * mpc.pbParams().g_;
+            zBoundsLow_(6 * i + 4) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
+            zBoundsLow_(6 * i + 5) = -std::numeric_limits<double>::infinity();
 
-            zBoundsHigh_(6 * i) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
+            zBoundsHigh_(6 * i + 0) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
             zBoundsHigh_(6 * i + 1) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(6 * i + 2) =
-                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMax_ * mpc.pbParams().g_;
-            zBoundsHigh_(6 * i + 3) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
+            zBoundsHigh_(6 * i + 2) = std::numeric_limits<double>::infinity();
+            zBoundsHigh_(6 * i + 3) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
             zBoundsHigh_(6 * i + 4) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(6 * i + 5) =
-                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMax_ * mpc.pbParams().g_;
+            zBoundsHigh_(6 * i + 5) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMax_ * mpc.pbParams().g_;
         }
 
         // Compute the A, l and u matrices
         A.noalias() = getGain() * mpc.Ou();
         l.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsLow_);
         u.noalias() = getGain() * (-mpc.Ox() * mpc.currentState() + zBoundsHigh_);
-        std::cout << "A: \n" << A << std::endl;
-        std::cout << "l: \n" << l << std::endl;
-        std::cout << "u: \n" << u << std::endl;
     };
 };
 }

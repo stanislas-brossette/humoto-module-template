@@ -46,7 +46,6 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
-        std::cout << "Form CoM Height task:" << std::endl;
         // Downcast the control problem into a simpleMPC type
         const humoto::example::MPCVerticalMotion &mpc =
             dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
@@ -66,9 +65,7 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
         etools::SelectionMatrix posZselector(9, 6);
         // Compute the A and b matrices
         A.noalias() = getGain() * (posZselector * mpc.Uu());
-        b.noalias() = -getGain() * (posZselector * mpc.Ux() * mpc.currentState() - cHeightRef);
-        std::cout << "A: \n" << A << std::endl;
-        std::cout << "b: \n" << b << std::endl;
+        b.noalias() = getGain() * (cHeightRef - posZselector * mpc.Ux() * mpc.currentState());
     };
 };
 }

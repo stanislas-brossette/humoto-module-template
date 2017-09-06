@@ -67,14 +67,13 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
             double xMax = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
             double yMin = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
             double yMax = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
-            double zMin = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMin_ * mpc.pbParams().g_;
-            double zMax = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().zetaMax_ * mpc.pbParams().g_;
+            double z = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().h_CoM_;
             zRef_(6 * i) = 0.5 * (xMin + xMax);
             zRef_(6 * i + 1) = 0.5 * (yMin + yMax);
-            zRef_(6 * i + 2) = 0.5 * (zMin + zMax);
+            zRef_(6 * i + 2) = z;
             zRef_(6 * i + 3) = 0.5 * (xMin + xMax);
             zRef_(6 * i + 4) = 0.5 * (yMin + yMax);
-            zRef_(6 * i + 5) = 0.5 * (zMin + zMax);
+            zRef_(6 * i + 5) = z;
         }
 
         // Compute the A and b matrices

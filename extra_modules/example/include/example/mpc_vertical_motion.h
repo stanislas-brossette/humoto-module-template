@@ -29,9 +29,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
 
     // Matrices to update the state
     // x_{k_1} = A*x_k + B*u_k
+    // y_{k} = C*x_k
     // y_{k_1} = D*x_k + E*u_k
     etools::Matrix9 A_;
     etools::Matrix9x3 B_;
+    etools::Matrix6x9 C_;
     etools::Matrix6x9 D_;
     etools::Matrix6x3 E_;
 
@@ -66,7 +68,6 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
     Eigen::Vector3d computeBblock()
     {
-        Bblock_.setIdentity();
         Bblock_(0) = t_ * t_ * t_ / 6.0;
         Bblock_(1) = t_ * t_ / 2.0;
         Bblock_(2) = t_;
@@ -99,17 +100,35 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         return B_;
     }
 
+
+    /// @brief Computes the C matrix
+    /// z_{k} = C*x_k
+    ///
+    /// @return The C matrix
+    etools::Matrix6x9 computeC()
+    {
+        Eigen::Vector3d Cblock;
+        Cblock(0) = 1;
+        Cblock(1) = 0;
+        Cblock(2) = -pb_params_.zetaMin_;
+        C_.setZero();
+        C_.block(0,0,1,3) = Cblock.transpose();
+        C_.block(1,3,1,3) = Cblock.transpose();
+        C_.block(2,6,1,3) = Cblock.transpose();
+        Cblock(2) = -pb_params_.zetaMax_;
+        C_.block(3,0,1,3) = Cblock.transpose();
+        C_.block(4,3,1,3) = Cblock.transpose();
+        C_.block(5,6,1,3) = Cblock.transpose();
+        return C_;
+    }
+
     /// @brief Computes the D matrix
     /// y_{k_1} = D*x_k + E*u_k
     ///
     /// @return The D matrix
     etools::Matrix6x9 computeD()
     {
-        D_.setZero();
-        D_.block(0, 0, 3, 3) = Ablock_;
-        D_.block(3, 0, 3, 3) = Ablock_;
-        D_.block(0, 6, 3, 3) = -pb_params_.zetaMin_ * Ablock_;
-        D_.block(3, 6, 3, 3) = -pb_params_.zetaMax_ * Ablock_;
+        D_ = C_*A_;
         return D_;
     }
 
@@ -119,11 +138,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @return The E matrix
     etools::Matrix6x3 computeE()
     {
-        E_.setZero();
-        E_.block(0, 0, 3, 1) = Bblock_;
-        E_.block(3, 0, 3, 1) = Bblock_;
-        E_.block(0, 2, 3, 1) = -pb_params_.zetaMin_ * Bblock_;
-        E_.block(3, 2, 3, 1) = -pb_params_.zetaMax_ * Bblock_;
+        E_ = C_*B_;
         return E_;
     }
 
@@ -144,6 +159,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         computeBblock();
         computeA();
         computeB();
+        computeC();
         computeD();
         computeE();
         // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices

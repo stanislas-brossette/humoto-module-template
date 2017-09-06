@@ -53,7 +53,7 @@ void setupHierarchy_v1(humoto::OptimizationProblem& opt_problem, const humoto::e
     // push tasks into the stack/hierarchy
     opt_problem.pushTask(task_cop_bounds, 0);
     opt_problem.pushTask(task_com_height, 1);
-    // opt_problem.pushTask(task_cop_pos_ref, 1);
-    // opt_problem.pushTask(task_com_velocity, 1);
-    // opt_problem.pushTask(task_min_jerk, 1);
+    opt_problem.pushTask(task_cop_pos_ref, 1);
+    opt_problem.pushTask(task_com_velocity, 1);
+    opt_problem.pushTask(task_min_jerk, 1);
 }

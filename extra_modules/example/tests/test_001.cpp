@@ -17,9 +17,9 @@
 
 // Enable YAML configuration files (must be first)
 #include "humoto/config_yaml.h"
-#include "humoto/example.h"
 #include "humoto/humoto.h"
 #include "humoto/qpoases.h"
+#include "humoto/example.h"
 
 HUMOTO_INITIALIZE_GLOBAL_LOGGER(std::cout);
 
@@ -39,8 +39,7 @@ int main()
         humoto::OptimizationProblem opt_problem;
 
         // parameters of the solver
-        humoto::qpoases::SolverParameters solver_parameters;
-        solver_parameters.crash_on_any_failure_ = false;
+        humoto::qpoases::SolverParameters solver_parameters(config_reader);
 
         // Actual solver (initialized with solver_parameters)
         humoto::qpoases::Solver solver(solver_parameters);
@@ -59,7 +58,28 @@ int main()
         humoto::example::MPCVerticalMotion mpc(problem_parameters);
 
         // Populate the optimization problem
-        setupHierarchy_v1(opt_problem, problem_parameters);
+        // tasks, which are used in the control problem
+        boost::shared_ptr<humoto::example::TaskCoPBoundsVerticalMotion> task_cop_bounds(
+            new humoto::example::TaskCoPBoundsVerticalMotion(problem_parameters.gainTaskCoPBounds_));
+        boost::shared_ptr<humoto::example::TaskCoMHeight> task_com_height(
+            new humoto::example::TaskCoMHeight(problem_parameters.gainTaskCoMHeight_));
+        humoto::TaskSharedPointer task_cop_pos_ref(
+            new humoto::example::TaskCoPPosRef(problem_parameters.gainTaskCoPPosRef_));
+        humoto::TaskSharedPointer task_com_velocity(
+            new humoto::example::TaskCoMVelocity(problem_parameters.gainTaskVelocity_));
+        humoto::TaskSharedPointer task_min_jerk(new humoto::TaskZeroVariables(problem_parameters.gainTaskMinJerk_));
+
+        // reset the optimization problem
+        opt_problem.reset(2);
+
+        // push tasks into the stack/hierarchy
+        opt_problem.pushTask(task_cop_bounds, 0);
+        opt_problem.pushTask(task_com_height, 1);
+        opt_problem.pushTask(task_cop_pos_ref, 1);
+        opt_problem.pushTask(task_com_velocity, 1);
+        opt_problem.pushTask(task_min_jerk, 1);
+
+        //taskVector = setupHierarchy_v1(opt_problem, problem_parameters);
 
         for (unsigned int i = 0; i < problem_parameters.nIterations_; ++i)
         {

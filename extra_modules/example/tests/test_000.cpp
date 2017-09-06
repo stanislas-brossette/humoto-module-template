@@ -17,9 +17,9 @@
 
 // Enable YAML configuration files (must be first)
 #include "humoto/config_yaml.h"
-#include "humoto/example.h"
 #include "humoto/humoto.h"
 #include "humoto/qpoases.h"
+#include "humoto/example.h"
 
 HUMOTO_INITIALIZE_GLOBAL_LOGGER(std::cout);
 
