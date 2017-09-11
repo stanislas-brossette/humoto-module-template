@@ -40,7 +40,6 @@ SolverParameters:
     dropIneqConPriority: 1
 ProblemParameters:
   h_CoM: 0.8
-  g: 9.81
   zetaMin: 0.05
   zetaMax: 0.15
   t: 0.10
