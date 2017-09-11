@@ -40,7 +40,6 @@ int main()
 
         // parameters of the solver
         humoto::qpoases::SolverParameters solver_parameters;
-        solver_parameters.crash_on_any_failure_ = false;
 
         // Actual solver (initialized with solver_parameters)
         humoto::qpoases::Solver solver(solver_parameters);

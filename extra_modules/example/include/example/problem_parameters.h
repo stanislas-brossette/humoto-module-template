@@ -76,7 +76,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief Sets the default parameters of the walk
     void setDefaults()
     {
-        g_ = 9.81;
+        g_ = humoto::g_gravitational_acceleration;
         h_CoM_ = 0.8;
         t_ = 0.005;
         n_ = 100;
