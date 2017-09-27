@@ -45,8 +45,10 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
     /// @brief Forms the matrices A and b to represent the task
     ///
     /// @param sol_structure structure of the problems solution
-    /// @param model_base model (can be downcasted dynamically to a specific model type if necessary)
-    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem type if necessary)
+    /// @param model_base model (can be downcasted dynamically to a specific model type if
+    /// necessary)
+    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem
+    /// type if necessary)
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
@@ -59,7 +61,8 @@ class HUMOTO_LOCAL TaskCoPPosRef : public humoto::TaskAB
         Eigen::VectorXd &b = getB();
 
         // Setup the reference trajectory along the preview horizon (it is the middle of the bounds)
-        if (zRef_.size() != 6 * (long)mpc.getPreviewHorizonLength()) zRef_.resize(6 * mpc.getPreviewHorizonLength());
+        if (zRef_.size() != 6 * (long)mpc.getPreviewHorizonLength())
+            zRef_.resize(6 * mpc.getPreviewHorizonLength());
 
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {

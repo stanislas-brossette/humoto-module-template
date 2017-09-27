@@ -41,8 +41,10 @@ class HUMOTO_LOCAL TaskCoMVelocity : public humoto::TaskAB
     /// @brief Forms the matrices A and b to represent the task
     ///
     /// @param sol_structure structure of the problems solution
-    /// @param model_base model (can be downcasted dynamically to a specific model type if necessary)
-    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem type if necessary)
+    /// @param model_base model (can be downcasted dynamically to a specific model type if
+    /// necessary)
+    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem
+    /// type if necessary)
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
@@ -65,7 +67,8 @@ class HUMOTO_LOCAL TaskCoMVelocity : public humoto::TaskAB
 
         // Compute the A and b matrices
         A.noalias() = getGain() * (mpc.velocity_selector() * mpc.Uu());
-        b.noalias() = -getGain() * (mpc.velocity_selector() * mpc.Ux() * mpc.currentState() - cvel_ref);
+        b.noalias() =
+            -getGain() * (mpc.velocity_selector() * mpc.Ux() * mpc.currentState() - cvel_ref);
     };
 };
 }

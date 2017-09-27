@@ -42,13 +42,18 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
-    TaskCoPBoundsVerticalMotion(const double gain = 1) : TaskALU("TaskCoPBoundsVerticalMotion", gain) {}
+    TaskCoPBoundsVerticalMotion(const double gain = 1)
+        : TaskALU("TaskCoPBoundsVerticalMotion", gain)
+    {
+    }
 
     /// @brief Forms the matrices A, l and u to represent the task
     ///
     /// @param sol_structure structure of the problems solution
-    /// @param model_base model (can be downcasted dynamically to a specific model type if necessary)
-    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem type if necessary)
+    /// @param model_base model (can be downcasted dynamically to a specific model type if
+    /// necessary)
+    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem
+    /// type if necessary)
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
@@ -71,7 +76,8 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
         {
             zBoundsLow_(6 * i + 0) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
             zBoundsLow_(6 * i + 1) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
-            zBoundsLow_(6 * i + 2) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.zetaMin() * mpc.pbParams().g_;
+            zBoundsLow_(6 * i + 2) =
+                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.zetaMin() * mpc.pbParams().g_;
             zBoundsLow_(6 * i + 3) = mpc.stepPlan().xMin()(mpc.currentStepIndex() + i);
             zBoundsLow_(6 * i + 4) = mpc.stepPlan().yMin()(mpc.currentStepIndex() + i);
             zBoundsLow_(6 * i + 5) = -humoto::g_infinity;
@@ -81,7 +87,8 @@ class HUMOTO_LOCAL TaskCoPBoundsVerticalMotion : public humoto::TaskALU
             zBoundsHigh_(6 * i + 2) = humoto::g_infinity;
             zBoundsHigh_(6 * i + 3) = mpc.stepPlan().xMax()(mpc.currentStepIndex() + i);
             zBoundsHigh_(6 * i + 4) = mpc.stepPlan().yMax()(mpc.currentStepIndex() + i);
-            zBoundsHigh_(6 * i + 5) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.zetaMax() * mpc.pbParams().g_;
+            zBoundsHigh_(6 * i + 5) =
+                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.zetaMax() * mpc.pbParams().g_;
         }
 
         // Compute the A, l and u matrices

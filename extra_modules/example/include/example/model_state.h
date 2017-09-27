@@ -16,58 +16,65 @@ namespace humoto
 namespace example
 {
 /// @brief Class containing the model of the system to be controlled
-class HUMOTO_LOCAL ModelState : public humoto::ModelState, public humoto::config::ConfigurableBase
+class HUMOTO_LOCAL ModelState : public humoto::ModelState,
+                                public humoto::config::RelaxedConfigurableBase
 {
   protected:
+/// Those macros define the necessary tools to read the variables from a yaml configuration file
 #define HUMOTO_CONFIG_SECTION_ID "ModelState"
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_MEMBER_CLASS(com_state_, "com_state")
+#define HUMOTO_CONFIG_ENTRIES         \
+    HUMOTO_CONFIG_COMPOUND_(position) \
+    HUMOTO_CONFIG_COMPOUND_(velocity) \
+    HUMOTO_CONFIG_COMPOUND_(acceleration)
 #define HUMOTO_CONFIG_CONSTRUCTOR ModelState
-#include "humoto/config/define_accessors.h"
-
-    /// @brief Sets the default values of the model state
-    void setDefaults()
-    {
-        com_state_.position_ << 0, 0, 0.8;
-        com_state_.velocity_ << 0, 0, 0;
-        com_state_.acceleration_ << 0, 0, 0;
-    }
+#include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
   public:
     /// @brief State of the CoM
-    humoto::rigidbody::PointMassState com_state_;
+    etools::Vector3 position_;
+    etools::Vector3 velocity_;
+    etools::Vector3 acceleration_;
 
   public:
     /// @brief Default constructor
     ModelState() { setDefaults(); }
+
+    /// @brief Sets the default values of the model state
+    void setDefaults()
+    {
+        position_ << 0, 0, 0.8;
+        velocity_ << 0, 0, 0;
+        acceleration_ << 0, 0, 0;
+    }
 
     /// @brief Returns the current state in vector form:
     /// [x; dx; ddx; y; dy; ddy; z; dz; ddz]
     etools::Vector9 getStateVector() const
     {
         etools::Vector9 currentState;
-        currentState(0) = com_state_.position_(0);
-        currentState(1) = com_state_.velocity_(0);
-        currentState(2) = com_state_.acceleration_(0);
-        currentState(3) = com_state_.position_(1);
-        currentState(4) = com_state_.velocity_(1);
-        currentState(5) = com_state_.acceleration_(1);
-        currentState(6) = com_state_.position_(2);
-        currentState(7) = com_state_.velocity_(2);
-        currentState(8) = com_state_.acceleration_(2);
+        currentState(0) = position_(0);
+        currentState(1) = velocity_(0);
+        currentState(2) = acceleration_(0);
+        currentState(3) = position_(1);
+        currentState(4) = velocity_(1);
+        currentState(5) = acceleration_(1);
+        currentState(6) = position_(2);
+        currentState(7) = velocity_(2);
+        currentState(8) = acceleration_(2);
         return currentState;
     }
 
     void updateFromVector(const etools::Vector9 &vec)
     {
-        com_state_.position_(0) = vec(0);
-        com_state_.velocity_(0) = vec(1);
-        com_state_.acceleration_(0) = vec(2);
-        com_state_.position_(1) = vec(3);
-        com_state_.velocity_(1) = vec(4);
-        com_state_.acceleration_(1) = vec(5);
-        com_state_.position_(2) = vec(6);
-        com_state_.velocity_(2) = vec(7);
-        com_state_.acceleration_(2) = vec(8);
+        position_(0) = vec(0);
+        velocity_(0) = vec(1);
+        acceleration_(0) = vec(2);
+        position_(1) = vec(3);
+        velocity_(1) = vec(4);
+        acceleration_(1) = vec(5);
+        position_(2) = vec(6);
+        velocity_(2) = vec(7);
+        acceleration_(2) = vec(8);
     }
 
     /// @brief Log
@@ -75,12 +82,13 @@ class HUMOTO_LOCAL ModelState : public humoto::ModelState, public humoto::config
     /// @param[in,out] logger logger
     /// @param[in] parent parent
     /// @param[in] name name
-    void log(humoto::Logger &logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED, const LogEntryName &parent = LogEntryName(),
+    void log(humoto::Logger &logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED,
+             const LogEntryName &parent = LogEntryName(),
              const std::string &name = "model_state") const
     {
-        LogEntryName subname = parent;
-        subname.add(name);
-        com_state_.log(logger, subname, "com_state");
+        // LogEntryName subname = parent;
+        // subname.add(name);
+        // com_state_.log(logger, subname, "com_state");
     }
 };
 }

@@ -39,9 +39,9 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAU
     void computePolygon(std::vector<Eigen::Vector2d> &vertices, size_t n, double min_height,
                         double max_height, double width)
     {
-        vertices.push_back(Eigen::Vector2d(width/2.0, min_height));
-        vertices.push_back(Eigen::Vector2d(-width/2.0, min_height));
-        for (size_t i = 0; i < n-2; ++i)
+        vertices.push_back(Eigen::Vector2d(width / 2.0, min_height));
+        vertices.push_back(Eigen::Vector2d(-width / 2.0, min_height));
+        for (size_t i = 0; i < n - 2; ++i)
         {
             Eigen::Vector2d newPoint(-width / 2.0 * cos(i * humoto::g_pi / (n - 1)),
                                      min_height + width / 2.0 * sin(i * humoto::g_pi / (n - 1)));
@@ -112,10 +112,11 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAU
     /// @brief Forms the matrices A and b to represent the task
     ///
     /// @param sol_structure structure of the problems solution
-    /// @param model_base model (can be downcasted dynamically to a specific model type if necessary)
-    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem type if necessary)
-    void form(const humoto::SolutionStructure &sol_structure, const
-    humoto::Model &model_base,
+    /// @param model_base model (can be downcasted dynamically to a specific model type if
+    /// necessary)
+    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem
+    /// type if necessary)
+    void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
         // Downcast the control problem into a simpleMPC type

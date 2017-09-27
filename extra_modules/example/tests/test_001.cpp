@@ -51,8 +51,8 @@ int main()
         humoto::example::ProblemParameters problem_parameters(config_reader);
 
         // model and state representing the controlled system
-        humoto::example::Model model;
-        humoto::example::ModelState model_state;
+        humoto::example::ModelState model_state(config_reader);
+        humoto::example::Model model(model_state);
 
         // control problem, which is used to construct an optimization problem
         humoto::example::MPCVerticalMotion mpc(problem_parameters);

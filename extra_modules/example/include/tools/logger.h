@@ -35,8 +35,8 @@ class HUMOTO_LOCAL Logger
         zMax_ = stepPlan.z();
         for (long i = 0; i < stepPlan.z().size(); ++i)
         {
-            zMin_(i) += (pbParams_.zetaZero_ - pbParams_.zetaSpan_/2) * pbParams_.g_;
-            zMax_(i) += (pbParams_.zetaZero_ + pbParams_.zetaSpan_/2) * pbParams_.g_;
+            zMin_(i) += (pbParams_.zetaZero_ - pbParams_.zetaSpan_ / 2) * pbParams_.g_;
+            zMax_(i) += (pbParams_.zetaZero_ + pbParams_.zetaSpan_ / 2) * pbParams_.g_;
         }
     }
 
@@ -48,7 +48,8 @@ class HUMOTO_LOCAL Logger
     {
         addStateAndControl(state, control, pbParams_.zetaZero_);
     }
-    void addStateAndControl(const etools::Vector9& state, const etools::Vector3& control, const double& zeta)
+    void addStateAndControl(const etools::Vector9& state, const etools::Vector3& control,
+                            const double& zeta)
     {
         Eigen::Vector3d position, velocity, acceleration, cop, copMin, copMax;
         position << state(0), state(3), state(6);
@@ -58,8 +59,8 @@ class HUMOTO_LOCAL Logger
         velocitiesCoM_.push_back(velocity);
         accelerationsCoM_.push_back(acceleration);
         jerksCoM_.push_back(control);
-        double zetaMin = zeta-pbParams_.zetaSpan_/2;
-        double zetaMax = zeta+pbParams_.zetaSpan_/2;
+        double zetaMin = zeta - pbParams_.zetaSpan_ / 2;
+        double zetaMax = zeta + pbParams_.zetaSpan_ / 2;
         copMin(0) = position(0) - zetaMin * acceleration(0);
         copMin(1) = position(1) - zetaMin * acceleration(1);
         copMin(2) = position(2) - zetaMin * acceleration(2);
@@ -118,7 +119,8 @@ class HUMOTO_LOCAL Logger
         std::ofstream logFile("plotFile.py");
         logFile << "import numpy as np\n"
                 << "import matplotlib.pyplot as plt\n"
-                << "t = np.arange(0.," << (double)size() * (double)timeStep_ << ", " << timeStep_ << ")\n\n";
+                << "t = np.arange(0.," << (double)size() * (double)timeStep_ << ", " << timeStep_
+                << ")\n\n";
 
         Eigen::MatrixXd positions(toMatrix(positionsCoM_));
         Eigen::MatrixXd positionsCoPMin(toMatrix(positionsCoPMin_));
@@ -131,15 +133,21 @@ class HUMOTO_LOCAL Logger
         logFile << "x = np.array(" << positions.col(0).transpose().format(cleanFmt) << ")\n";
         logFile << "y = np.array(" << positions.col(1).transpose().format(cleanFmt) << ")\n";
         logFile << "z = np.array(" << positions.col(2).transpose().format(cleanFmt) << ")\n";
-        logFile << "xCoPMin = np.array(" << positionsCoPMin.col(0).transpose().format(cleanFmt) << ")\n";
-        logFile << "yCoPMin = np.array(" << positionsCoPMin.col(1).transpose().format(cleanFmt) << ")\n";
-        logFile << "zCoPMin = np.array(" << positionsCoPMin.col(2).transpose().format(cleanFmt) << ")\n";
+        logFile << "xCoPMin = np.array(" << positionsCoPMin.col(0).transpose().format(cleanFmt)
+                << ")\n";
+        logFile << "yCoPMin = np.array(" << positionsCoPMin.col(1).transpose().format(cleanFmt)
+                << ")\n";
+        logFile << "zCoPMin = np.array(" << positionsCoPMin.col(2).transpose().format(cleanFmt)
+                << ")\n";
         logFile << "xCoP = np.array(" << positionsCoP.col(0).transpose().format(cleanFmt) << ")\n";
         logFile << "yCoP = np.array(" << positionsCoP.col(1).transpose().format(cleanFmt) << ")\n";
         logFile << "zCoP = np.array(" << positionsCoP.col(2).transpose().format(cleanFmt) << ")\n";
-        logFile << "xCoPMax = np.array(" << positionsCoPMax.col(0).transpose().format(cleanFmt) << ")\n";
-        logFile << "yCoPMax = np.array(" << positionsCoPMax.col(1).transpose().format(cleanFmt) << ")\n";
-        logFile << "zCoPMax = np.array(" << positionsCoPMax.col(2).transpose().format(cleanFmt) << ")\n";
+        logFile << "xCoPMax = np.array(" << positionsCoPMax.col(0).transpose().format(cleanFmt)
+                << ")\n";
+        logFile << "yCoPMax = np.array(" << positionsCoPMax.col(1).transpose().format(cleanFmt)
+                << ")\n";
+        logFile << "zCoPMax = np.array(" << positionsCoPMax.col(2).transpose().format(cleanFmt)
+                << ")\n";
         logFile << "xMin = np.array(" << xMin_.transpose().format(cleanFmt) << ")\n";
         logFile << "yMin = np.array(" << yMin_.transpose().format(cleanFmt) << ")\n";
         logFile << "zMin = np.array(" << zMin_.transpose().format(cleanFmt) << ")\n";

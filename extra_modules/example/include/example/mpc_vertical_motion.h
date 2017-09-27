@@ -15,8 +15,8 @@ namespace humoto
 {
 namespace example
 {
-/// @brief Class handling the control problem, it is responsible for updating the model and its state with the control
-/// found as solution of the optimization problem (on previous iteration)
+/// @brief Class handling the control problem, it is responsible for updating the model and its
+/// state with the control found as solution of the optimization problem (on previous iteration)
 class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
 {
   private:
@@ -108,7 +108,6 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         return B_;
     }
 
-
     /// @brief Computes the C matrix
     /// z_{k} = C*x_k
     ///
@@ -120,13 +119,13 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         Cblock(1) = 0;
         Cblock(2) = -zetaMin_;
         C_.setZero();
-        C_.block(0,0,1,3) = Cblock.transpose();
-        C_.block(1,3,1,3) = Cblock.transpose();
-        C_.block(2,6,1,3) = Cblock.transpose();
+        C_.block(0, 0, 1, 3) = Cblock.transpose();
+        C_.block(1, 3, 1, 3) = Cblock.transpose();
+        C_.block(2, 6, 1, 3) = Cblock.transpose();
         Cblock(2) = -zetaMax_;
-        C_.block(3,0,1,3) = Cblock.transpose();
-        C_.block(4,3,1,3) = Cblock.transpose();
-        C_.block(5,6,1,3) = Cblock.transpose();
+        C_.block(3, 0, 1, 3) = Cblock.transpose();
+        C_.block(4, 3, 1, 3) = Cblock.transpose();
+        C_.block(5, 6, 1, 3) = Cblock.transpose();
         return C_;
     }
 
@@ -136,7 +135,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @return The D matrix
     etools::Matrix6x9 computeD()
     {
-        D_ = C_*A_;
+        D_ = C_ * A_;
         return D_;
     }
 
@@ -146,7 +145,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @return The E matrix
     etools::Matrix6x3 computeE()
     {
-        E_ = C_*B_;
+        E_ = C_ * B_;
         return E_;
     }
 
@@ -157,7 +156,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     MPCVerticalMotion(const ProblemParameters& pbParam)
         : pb_params_(pbParam),
           velocity_selector_(3, 1),
-          step_plan_(pb_params_.leftStepsParameters_, pb_params_.rightStepsParameters_, pb_params_.t_),
+          step_plan_(pb_params_.leftStepsParameters_, pb_params_.rightStepsParameters_,
+                     pb_params_.t_),
           current_step_index_(0),
           logger_(pb_params_.t_, step_plan_, pb_params_)
     {
@@ -208,8 +208,9 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     ///@param[in] problem_parameters
     ///
     ///@return ControlProblemStatus::OK/ControlProblemStatus::STOPPED
-    ControlProblemStatus::Status update(const humoto::example::Model& model,
-                                        const humoto::example::ProblemParameters& problem_parameters)
+    ControlProblemStatus::Status update(
+        const humoto::example::Model& model,
+        const humoto::example::ProblemParameters& problem_parameters)
     {
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
@@ -227,7 +228,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     ///@param[in] model model
     ///
     ///@return next model state.
-    humoto::example::ModelState getNextModelState(const humoto::Solution& solution, const humoto::example::Model& model)
+    humoto::example::ModelState getNextModelState(const humoto::Solution& solution,
+                                                  const humoto::example::Model& model)
     {
         humoto::example::ModelState state;
 
@@ -237,8 +239,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         newState = A_ * current_state_ + B_ * solution.x_.segment(0, 3);
         state.updateFromVector(newState);
 
-        zeta_ = (state.com_state_.position_(2) - step_plan_.z()(currentStepIndex())) /
-                    (state.com_state_.acceleration_(2) + pb_params_.g_);
+        zeta_ = (state.position_(2) - step_plan_.z()(currentStepIndex())) /
+                (state.acceleration_(2) + pb_params_.g_);
 
         // Add the new state and control to the logger
         logger_.addStateAndControl(newState, solution.x_.segment(0, 3), zeta_);
@@ -259,7 +261,8 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @param[in,out] logger logger
     /// @param[in] parent parent
     /// @param[in] name name
-    void log(humoto::Logger& logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED, const LogEntryName& parent = LogEntryName(),
+    void log(humoto::Logger& logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED,
+             const LogEntryName& parent = LogEntryName(),
              const std::string& name = "simple_mpc") const
     {
         LogEntryName subname = parent;

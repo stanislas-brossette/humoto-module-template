@@ -25,9 +25,9 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     double h_CoM_;
 
     /// @brief Min value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
-    //double zetaMin_;
+    // double zetaMin_;
     /// @brief Max value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
-    //double zetaMax_;
+    // double zetaMax_;
 
     /// @brief Initial value of Zeta { zeta = (c_z - p_z) / (ddc_z + g_z) }
     double zetaZero_;
@@ -113,8 +113,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     {
         g_ = humoto::g_gravitational_acceleration;
         h_CoM_ = 0.8;
-        //zetaMin_ = -10;
-        //zetaMax_ = 10;
+        // zetaMin_ = -10;
+        // zetaMax_ = 10;
         zetaZero_ = 0;
         zetaSpan_ = 20;
         t_ = 0.005;

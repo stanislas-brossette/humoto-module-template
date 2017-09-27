@@ -15,8 +15,8 @@ namespace humoto
 {
 namespace example
 {
-/// @brief Class handling the control problem, it is responsible for updating the model and its state with the control
-/// found as solution of the optimization problem (on previous iteration)
+/// @brief Class handling the control problem, it is responsible for updating the model and its
+/// state with the control found as solution of the optimization problem (on previous iteration)
 class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
 {
   private:
@@ -163,8 +163,9 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     ///@param[in] problem_parameters
     ///
     ///@return ControlProblemStatus::OK/ControlProblemStatus::STOPPED
-    ControlProblemStatus::Status update(const humoto::example::Model& model,
-                                        const humoto::example::ProblemParameters& problem_parameters)
+    ControlProblemStatus::Status update(
+        const humoto::example::Model& model,
+        const humoto::example::ProblemParameters& problem_parameters)
     {
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
@@ -182,7 +183,8 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     ///@param[in] model model
     ///
     ///@return next model state.
-    humoto::example::ModelState getNextModelState(const humoto::Solution& solution, const humoto::example::Model& model)
+    humoto::example::ModelState getNextModelState(const humoto::Solution& solution,
+                                                  const humoto::example::Model& model)
     {
         humoto::example::ModelState state;
 
@@ -211,7 +213,8 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     /// @param[in,out] logger logger
     /// @param[in] parent parent
     /// @param[in] name name
-    void log(humoto::Logger& logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED, const LogEntryName& parent = LogEntryName(),
+    void log(humoto::Logger& logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED,
+             const LogEntryName& parent = LogEntryName(),
              const std::string& name = "simple_mpc") const
     {
         LogEntryName subname = parent;

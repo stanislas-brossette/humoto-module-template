@@ -15,7 +15,8 @@ namespace humoto
 {
 namespace example
 {
-/// @brief Task describing the CoM height being as close as possible to a reference height in the form of { Ax = b }
+/// @brief Task describing the CoM height being as close as possible to a reference height in the
+/// form of { Ax = b }
 class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
 {
   protected:
@@ -41,8 +42,10 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
     /// @brief Forms the matrices A and b to represent the task
     ///
     /// @param sol_structure structure of the problems solution
-    /// @param model_base model (can be downcasted dynamically to a specific model type if necessary)
-    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem type if necessary)
+    /// @param model_base model (can be downcasted dynamically to a specific model type if
+    /// necessary)
+    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem
+    /// type if necessary)
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
@@ -56,10 +59,12 @@ class HUMOTO_LOCAL TaskCoMHeight : public humoto::TaskAB
 
         // Setup the reference velocity along the preview horizon
         Eigen::VectorXd cHeightRef;
-        if (cHeightRef.size() != (long)mpc.getPreviewHorizonLength()) cHeightRef.resize(mpc.getPreviewHorizonLength());
+        if (cHeightRef.size() != (long)mpc.getPreviewHorizonLength())
+            cHeightRef.resize(mpc.getPreviewHorizonLength());
         for (std::size_t i = 0; i < mpc.getPreviewHorizonLength(); ++i)
         {
-            cHeightRef(i) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().comHeightRef_;
+            cHeightRef(i) =
+                mpc.stepPlan().z()(mpc.currentStepIndex() + i) + mpc.pbParams().comHeightRef_;
         }
 
         etools::SelectionMatrix posZselector(9, 6);

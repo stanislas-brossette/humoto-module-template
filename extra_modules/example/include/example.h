@@ -9,7 +9,7 @@
     @brief This file regroups all the necessary includes for this project
 */
 
-#pragma  once
+#pragma once
 
 #include "humoto/walking.h"
 

@@ -24,12 +24,18 @@ class HUMOTO_LOCAL Step
     /// @param z z
     /// @param tMin starting time of the step
     /// @param tMax end time of the step
-    Step(double x, double y, double z, double tMin, double tMax) : x_(x), y_(y), z_(z), tMin_(tMin), tMax_(tMax) {}
+    Step(double x, double y, double z, double tMin, double tMax)
+        : x_(x), y_(y), z_(z), tMin_(tMin), tMax_(tMax)
+    {
+    }
 
     /// @brief Construstor for the step from a vector
     ///
     /// @param v vector containing [ x, y, z, tMin, tMax]
-    Step(const std::vector<double> v) : x_(v.at(0)), y_(v.at(1)), z_(v.at(2)), tMin_(v.at(3)), tMax_(v.at(4)) {}
+    Step(const std::vector<double> v)
+        : x_(v.at(0)), y_(v.at(1)), z_(v.at(2)), tMin_(v.at(3)), tMax_(v.at(4))
+    {
+    }
 
     /// @brief Getter for x
     const double& x() const { return x_; }
@@ -80,7 +86,8 @@ class HUMOTO_LOCAL StepPlan
         computePlan();
     }
 
-    /// @brief Computes the values of xMin, xMax, yMin, yMax, z (Sustentation polygon) for each time step
+    /// @brief Computes the values of xMin, xMax, yMin, yMax, z (Sustentation polygon) for each time
+    /// step
     ///
     /// @param leftSteps list of left foot steps
     /// @param rightSteps list of right foot steps

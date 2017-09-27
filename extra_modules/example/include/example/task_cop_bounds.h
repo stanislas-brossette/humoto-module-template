@@ -47,13 +47,16 @@ class HUMOTO_LOCAL TaskCoPBounds : public humoto::TaskALU
     /// @brief Forms the matrices A, l and u to represent the task
     ///
     /// @param sol_structure structure of the problems solution
-    /// @param model_base model (can be downcasted dynamically to a specific model type if necessary)
-    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem type if necessary)
+    /// @param model_base model (can be downcasted dynamically to a specific model type if
+    /// necessary)
+    /// @param control_problem control_problem (can be downcasted dynamically to a specific problem
+    /// type if necessary)
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
         // Downcast the control problem into a simpleMPC type
-        const humoto::example::SimpleMPC &mpc = dynamic_cast<const humoto::example::SimpleMPC &>(control_problem);
+        const humoto::example::SimpleMPC &mpc =
+            dynamic_cast<const humoto::example::SimpleMPC &>(control_problem);
 
         // Initialize the matrices A and b
         Eigen::MatrixXd &A = getA();

@@ -25,14 +25,19 @@ class HUMOTO_LOCAL Model : public humoto::Model
   public:
     /// @brief Default constructor
     Model() {}
+    /// @brief Constructor with model State to copy
+    Model(const humoto::ModelState &mState) { updateState(mState); }
 
     /// @brief Update model state
     ///
     /// @param[in] model_state model state
     void updateState(const humoto::ModelState &model_state)
     {
-        const humoto::example::ModelState &newState = dynamic_cast<const humoto::example::ModelState &>(model_state);
-        state_.com_state_ = newState.com_state_;
+        const humoto::example::ModelState &newState =
+            dynamic_cast<const humoto::example::ModelState &>(model_state);
+        state_.position_ = newState.position_;
+        state_.velocity_ = newState.velocity_;
+        state_.acceleration_ = newState.acceleration_;
     }
 
     /// @brief Log
@@ -40,8 +45,8 @@ class HUMOTO_LOCAL Model : public humoto::Model
     /// @param[in, out] logger logger
     /// @param[in] parent parent
     /// @param[in] name name
-    void log(humoto::Logger &logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED, const LogEntryName &parent = LogEntryName(),
-             const std::string &name = "model") const
+    void log(humoto::Logger &logger HUMOTO_GLOBAL_LOGGER_IF_DEFINED,
+             const LogEntryName &parent = LogEntryName(), const std::string &name = "model") const
     {
         LogEntryName subname = parent;
         subname.add(name);
