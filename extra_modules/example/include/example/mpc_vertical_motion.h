@@ -218,6 +218,12 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
 
         current_state_ = model.state_.getStateVector();
 
+        // The following matrices need to be recomputed because zetaMin and zetaMax changed
+        computeC();
+        computeD();
+        computeE();
+        condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
+
         return (ControlProblemStatus::OK);
     }
 

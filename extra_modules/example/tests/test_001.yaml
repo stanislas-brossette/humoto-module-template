@@ -39,7 +39,6 @@ SolverParameters:
     dropEqConPriority: 1
     dropIneqConPriority: 1
 ProblemParameters:
-  h_CoM: 0.8
   zetaZero: 0.1
   zetaSpan: 0.1
   t: 0.10
@@ -47,16 +46,18 @@ ProblemParameters:
   n: 20
   comVelRef: [0.1, 0.0, 0.0]
   comHeightRef: 1.2
+
   gainTaskCoPBounds: 1
   gainTaskKinematicsRectangle: 1
-  gainTaskCoMHeight: 1
+  gainTaskCoMHeight: 0
   gainTaskVelocity: 1
   gainTaskMinJerk: 1
   gainTaskCoPPosRef: 1
-  kinematicLimitZmin: 0.7
-  kinematicLimitZmax: 0.9
-  kinematicLimitXSpan: 0.4
-  kinematicLimitYSpan: 0.4
+
+  kinematicLimitZmin: 0.4
+  kinematicLimitZmax: 1.2
+  kinematicLimitXSpan: 0.6
+  kinematicLimitYSpan: 0.6
   leftStepsParameters:
     - [0  ,  0.10, 0.0,  0.0, 2.00]
     - [0.2,  0.10, 0.1, 2.91, 3.99]
@@ -73,6 +74,6 @@ ProblemParameters:
     - [1.6, -0.10, 0.1, 9.91, 10.99]
     - [2.0, -0.10, 0.0, 11.91, 30.0]
 ModelState:
-  position: [0.1, -0.1, 0.6]
+  position: [0.1, -0.1, 0.5]
   velocity: [0.0, 0.0, 0.0]
   acceleration: [0.0, 0.0, 0.0]
