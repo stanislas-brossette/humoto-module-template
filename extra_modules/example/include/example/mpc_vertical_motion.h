@@ -23,6 +23,14 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     // timestep
     double t_;
 
+    // Value of zeta at previous iteration
+    double zeta_;
+
+    /// @brief Lower bound for zeta
+    double zetaMin_;
+    /// @brief Upper bound for zeta
+    double zetaMax_;
+
     // Matrices used to compute A and B
     Eigen::Vector3d Bblock_;
     Eigen::Matrix3d Ablock_;
@@ -110,12 +118,12 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         Eigen::Vector3d Cblock;
         Cblock(0) = 1;
         Cblock(1) = 0;
-        Cblock(2) = -pb_params_.zetaMin_;
+        Cblock(2) = -zetaMin_;
         C_.setZero();
         C_.block(0,0,1,3) = Cblock.transpose();
         C_.block(1,3,1,3) = Cblock.transpose();
         C_.block(2,6,1,3) = Cblock.transpose();
-        Cblock(2) = -pb_params_.zetaMax_;
+        Cblock(2) = -zetaMax_;
         C_.block(3,0,1,3) = Cblock.transpose();
         C_.block(4,3,1,3) = Cblock.transpose();
         C_.block(5,6,1,3) = Cblock.transpose();
@@ -154,6 +162,9 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
           logger_(pb_params_.t_, step_plan_, pb_params_)
     {
         t_ = pb_params_.t_;
+        zeta_ = pb_params_.zetaZero_;
+        zetaMin_ = zeta_ - pb_params_.zetaSpan_ / 2;
+        zetaMax_ = zeta_ + pb_params_.zetaSpan_ / 2;
         // compute all the A, B, D, E matrices
         computeAblock();
         computeBblock();
@@ -185,6 +196,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const Logger& logger() const { return logger_; }
     /// @brief Getter for stepPlan
     const StepPlan& stepPlan() const { return step_plan_; }
+
+    /// @brief Getter for zetaMin
+    const double& zetaMin() const { return zetaMin_; }
+    /// @brief Getter for zetaMax
+    const double& zetaMax() const { return zetaMax_; }
 
     ///@brief Update control problem from model
     ///
@@ -221,8 +237,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         newState = A_ * current_state_ + B_ * solution.x_.segment(0, 3);
         state.updateFromVector(newState);
 
+        zeta_ = (state.com_state_.position_(2) - step_plan_.z()(currentStepIndex())) /
+                    (state.com_state_.acceleration_(2) + pb_params_.g_);
+
         // Add the new state and control to the logger
-        logger_.addStateAndControl(newState, solution.x_.segment(0, 3));
+        logger_.addStateAndControl(newState, solution.x_.segment(0, 3), zeta_);
 
         std::cout << "currentStepIndex: " << current_step_index_ << std::endl;
         current_step_index_++;

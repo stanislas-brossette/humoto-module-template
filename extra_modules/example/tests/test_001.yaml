@@ -1,5 +1,5 @@
 SolverParameters:
-  crash_on_any_failure: false
+  crash_on_any_failure: true
   max_number_of_iterations: 1000
   max_cpu_time: 0
   solve_two_levels_as_qp: true
@@ -40,17 +40,23 @@ SolverParameters:
     dropIneqConPriority: 1
 ProblemParameters:
   h_CoM: 0.8
-  zetaMin: 0.05
-  zetaMax: 0.15
+  zetaZero: 0.1
+  zetaSpan: 0.1
   t: 0.10
   endTime: 20
   n: 20
   comVelRef: [0.1, 0.0, 0.0]
   comHeightRef: 1.2
   gainTaskCoPBounds: 1
+  gainTaskKinematicsRectangle: 1
+  gainTaskCoMHeight: 1
   gainTaskVelocity: 1
   gainTaskMinJerk: 1
-  gainTaskCoPPosRef: 10
+  gainTaskCoPPosRef: 1
+  kinematicLimitZmin: 0.7
+  kinematicLimitZmax: 0.9
+  kinematicLimitXSpan: 0.4
+  kinematicLimitYSpan: 0.4
   leftStepsParameters:
     - [0  ,  0.10, 0.0,  0.0, 2.00]
     - [0.2,  0.10, 0.1, 2.91, 3.99]

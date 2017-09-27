@@ -198,8 +198,10 @@ class HUMOTO_LOCAL StepPlan
     const Eigen::VectorXd& yMin() const { return yMin_; }
     /// @brief Getter for yMax
     const Eigen::VectorXd& yMax() const { return yMax_; }
+
     /// @brief Getter for z
     const Eigen::VectorXd& z() const { return z_; }
+
     /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
 

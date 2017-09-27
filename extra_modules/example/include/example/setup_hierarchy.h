@@ -46,12 +46,15 @@ void setupHierarchy_v1(humoto::OptimizationProblem& opt_problem, const humoto::e
     humoto::TaskSharedPointer task_cop_pos_ref(new humoto::example::TaskCoPPosRef(params.gainTaskCoPPosRef_));
     humoto::TaskSharedPointer task_com_velocity(new humoto::example::TaskCoMVelocity(params.gainTaskVelocity_));
     humoto::TaskSharedPointer task_min_jerk(new humoto::TaskZeroVariables(params.gainTaskMinJerk_));
+    humoto::TaskSharedPointer task_kinematics_rectangle(
+        new humoto::example::TaskKinematicsRectangle(params.gainTaskKinematicsRectangle_));
 
     // reset the optimization problem
     opt_problem.reset(2);
 
     // push tasks into the stack/hierarchy
     opt_problem.pushTask(task_cop_bounds, 0);
+    opt_problem.pushTask(task_kinematics_rectangle, 0);
     opt_problem.pushTask(task_com_height, 1);
     opt_problem.pushTask(task_cop_pos_ref, 1);
     opt_problem.pushTask(task_com_velocity, 1);

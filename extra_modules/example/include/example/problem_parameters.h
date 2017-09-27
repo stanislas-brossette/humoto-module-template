@@ -25,9 +25,14 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     double h_CoM_;
 
     /// @brief Min value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
-    double zetaMin_;
+    //double zetaMin_;
     /// @brief Max value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
-    double zetaMax_;
+    //double zetaMax_;
+
+    /// @brief Initial value of Zeta { zeta = (c_z - p_z) / (ddc_z + g_z) }
+    double zetaZero_;
+    /// @brief Span in which zeta can be: { zeta_k - zetaSpan/2 < zeta_{k+1} < zeta_k + zetaSpan/2}
+    double zetaSpan_;
 
     /// @brief length of one time step
     double t_;
@@ -58,25 +63,40 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     double gainTaskCoPBounds_;
     /// @brief gain of the CoP position reference task
     double gainTaskCoPPosRef_;
+    /// @brief gain of the kinematics rectangle task
+    double gainTaskKinematicsRectangle_;
+    /// @brief Minimum height of the CoM in kinematic task
+    double kinematicLimitZmin_;
+    /// @brief Maximum height of the CoM in kinematic task
+    double kinematicLimitZmax_;
+    /// @brief Width of the reachable X of the CoM in kinematic task
+    double kinematicLimitXSpan_;
+    /// @brief Width of the reachable Y of the CoM in kinematic task
+    double kinematicLimitYSpan_;
 
   protected:
 /// Those macros define the necessary tools to read the variables from a yaml configuration file
 #define HUMOTO_CONFIG_SECTION_ID "ProblemParameters"
-#define HUMOTO_CONFIG_ENTRIES                     \
-    HUMOTO_CONFIG_SCALAR_(g)                      \
-    HUMOTO_CONFIG_SCALAR_(h_CoM)                  \
-    HUMOTO_CONFIG_SCALAR_(zetaMin)                \
-    HUMOTO_CONFIG_SCALAR_(zetaMax)                \
-    HUMOTO_CONFIG_SCALAR_(t)                      \
-    HUMOTO_CONFIG_SCALAR_(n)                      \
-    HUMOTO_CONFIG_SCALAR_(endTime)                \
-    HUMOTO_CONFIG_COMPOUND_(comVelRef)            \
-    HUMOTO_CONFIG_SCALAR_(comHeightRef)           \
-    HUMOTO_CONFIG_COMPOUND_(leftStepsParameters)  \
-    HUMOTO_CONFIG_COMPOUND_(rightStepsParameters) \
-    HUMOTO_CONFIG_SCALAR_(gainTaskVelocity)       \
-    HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef)      \
-    HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk)        \
+#define HUMOTO_CONFIG_ENTRIES                          \
+    HUMOTO_CONFIG_SCALAR_(g)                           \
+    HUMOTO_CONFIG_SCALAR_(h_CoM)                       \
+    HUMOTO_CONFIG_SCALAR_(zetaZero)                    \
+    HUMOTO_CONFIG_SCALAR_(zetaSpan)                    \
+    HUMOTO_CONFIG_SCALAR_(t)                           \
+    HUMOTO_CONFIG_SCALAR_(n)                           \
+    HUMOTO_CONFIG_SCALAR_(endTime)                     \
+    HUMOTO_CONFIG_COMPOUND_(comVelRef)                 \
+    HUMOTO_CONFIG_SCALAR_(comHeightRef)                \
+    HUMOTO_CONFIG_COMPOUND_(leftStepsParameters)       \
+    HUMOTO_CONFIG_COMPOUND_(rightStepsParameters)      \
+    HUMOTO_CONFIG_SCALAR_(gainTaskVelocity)            \
+    HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef)           \
+    HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk)             \
+    HUMOTO_CONFIG_SCALAR_(gainTaskKinematicsRectangle) \
+    HUMOTO_CONFIG_SCALAR_(kinematicLimitZmin)          \
+    HUMOTO_CONFIG_SCALAR_(kinematicLimitZmax)          \
+    HUMOTO_CONFIG_SCALAR_(kinematicLimitXSpan)         \
+    HUMOTO_CONFIG_SCALAR_(kinematicLimitYSpan)         \
     HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds)
 #define HUMOTO_CONFIG_CONSTRUCTOR ProblemParameters
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
@@ -93,8 +113,10 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     {
         g_ = humoto::g_gravitational_acceleration;
         h_CoM_ = 0.8;
-        zetaMin_ = -10;
-        zetaMax_ = 10;
+        //zetaMin_ = -10;
+        //zetaMax_ = 10;
+        zetaZero_ = 0;
+        zetaSpan_ = 20;
         t_ = 0.005;
         n_ = 100;
         endTime_ = 10;

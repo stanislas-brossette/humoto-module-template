@@ -35,8 +35,8 @@ class HUMOTO_LOCAL Logger
         zMax_ = stepPlan.z();
         for (long i = 0; i < stepPlan.z().size(); ++i)
         {
-            zMin_(i) += pbParams_.zetaMin_ * pbParams_.g_;
-            zMax_(i) += pbParams_.zetaMax_ * pbParams_.g_;
+            zMin_(i) += (pbParams_.zetaZero_ - pbParams_.zetaSpan_/2) * pbParams_.g_;
+            zMax_(i) += (pbParams_.zetaZero_ + pbParams_.zetaSpan_/2) * pbParams_.g_;
         }
     }
 
@@ -44,9 +44,13 @@ class HUMOTO_LOCAL Logger
     ///
     /// @param state state
     /// @param control control
-    void addStateAndControl(const etools::Vector9 state, const etools::Vector3 control)
+    void addStateAndControl(const etools::Vector9& state, const etools::Vector3& control)
     {
-        Eigen::Vector3d position, velocity, acceleration, copMin, copMax;
+        addStateAndControl(state, control, pbParams_.zetaZero_);
+    }
+    void addStateAndControl(const etools::Vector9& state, const etools::Vector3& control, const double& zeta)
+    {
+        Eigen::Vector3d position, velocity, acceleration, cop, copMin, copMax;
         position << state(0), state(3), state(6);
         velocity << state(1), state(4), state(7);
         acceleration << state(2), state(5), state(8);
@@ -54,13 +58,19 @@ class HUMOTO_LOCAL Logger
         velocitiesCoM_.push_back(velocity);
         accelerationsCoM_.push_back(acceleration);
         jerksCoM_.push_back(control);
-        copMin(0) = position(0) - pbParams_.zetaMin_ * acceleration(0);
-        copMin(1) = position(1) - pbParams_.zetaMin_ * acceleration(1);
-        copMin(2) = position(2) - pbParams_.zetaMin_ * acceleration(2);
-        copMax(0) = position(0) - pbParams_.zetaMax_ * acceleration(0);
-        copMax(1) = position(1) - pbParams_.zetaMax_ * acceleration(1);
-        copMax(2) = position(2) - pbParams_.zetaMax_ * acceleration(2);
+        double zetaMin = zeta-pbParams_.zetaSpan_/2;
+        double zetaMax = zeta+pbParams_.zetaSpan_/2;
+        copMin(0) = position(0) - zetaMin * acceleration(0);
+        copMin(1) = position(1) - zetaMin * acceleration(1);
+        copMin(2) = position(2) - zetaMin * acceleration(2);
+        cop(0) = position(0) - zeta * acceleration(0);
+        cop(1) = position(1) - zeta * acceleration(1);
+        cop(2) = position(2) - zeta * acceleration(2);
+        copMax(0) = position(0) - zetaMax * acceleration(0);
+        copMax(1) = position(1) - zetaMax * acceleration(1);
+        copMax(2) = position(2) - zetaMax * acceleration(2);
         positionsCoPMin_.push_back(copMin);
+        positionsCoP_.push_back(cop);
         positionsCoPMax_.push_back(copMax);
     }
 
@@ -69,6 +79,7 @@ class HUMOTO_LOCAL Logger
     Eigen::MatrixXd getAccelerationsAsMatrix() const { return toMatrix(accelerationsCoM_); }
     Eigen::MatrixXd getJerksAsMatrix() const { return toMatrix(jerksCoM_); }
     Eigen::MatrixXd getCoPMinsAsMatrix() const { return toMatrix(positionsCoPMin_); }
+    Eigen::MatrixXd getCoPsAsMatrix() const { return toMatrix(positionsCoP_); }
     Eigen::MatrixXd getCoPMaxsAsMatrix() const { return toMatrix(positionsCoPMax_); }
 
     /// @brief Transforms a list of vector3 into a matrix
@@ -112,6 +123,7 @@ class HUMOTO_LOCAL Logger
         Eigen::MatrixXd positions(toMatrix(positionsCoM_));
         Eigen::MatrixXd positionsCoPMin(toMatrix(positionsCoPMin_));
         Eigen::MatrixXd positionsCoPMax(toMatrix(positionsCoPMax_));
+        Eigen::MatrixXd positionsCoP(toMatrix(positionsCoP_));
         Eigen::MatrixXd velocities(toMatrix(velocitiesCoM_));
         Eigen::MatrixXd accelerations(toMatrix(accelerationsCoM_));
         Eigen::MatrixXd jerks(toMatrix(jerksCoM_));
@@ -122,6 +134,9 @@ class HUMOTO_LOCAL Logger
         logFile << "xCoPMin = np.array(" << positionsCoPMin.col(0).transpose().format(cleanFmt) << ")\n";
         logFile << "yCoPMin = np.array(" << positionsCoPMin.col(1).transpose().format(cleanFmt) << ")\n";
         logFile << "zCoPMin = np.array(" << positionsCoPMin.col(2).transpose().format(cleanFmt) << ")\n";
+        logFile << "xCoP = np.array(" << positionsCoP.col(0).transpose().format(cleanFmt) << ")\n";
+        logFile << "yCoP = np.array(" << positionsCoP.col(1).transpose().format(cleanFmt) << ")\n";
+        logFile << "zCoP = np.array(" << positionsCoP.col(2).transpose().format(cleanFmt) << ")\n";
         logFile << "xCoPMax = np.array(" << positionsCoPMax.col(0).transpose().format(cleanFmt) << ")\n";
         logFile << "yCoPMax = np.array(" << positionsCoPMax.col(1).transpose().format(cleanFmt) << ")\n";
         logFile << "zCoPMax = np.array(" << positionsCoPMax.col(2).transpose().format(cleanFmt) << ")\n";
@@ -154,6 +169,9 @@ class HUMOTO_LOCAL Logger
         logFile << "ax1.plot(t, xCoPMin, 'r--', label='xCoPMin')\n";
         logFile << "ax2.plot(t, yCoPMin, 'b--', label='yCoPMin')\n";
         logFile << "ax3.plot(t, zCoPMin, 'g--', label='zCoPMin')\n";
+        logFile << "ax1.plot(t, xCoP, 'r,', label='xCoP')\n";
+        logFile << "ax2.plot(t, yCoP, 'b,', label='yCoP')\n";
+        logFile << "ax3.plot(t, zCoP, 'g,', label='zCoP')\n";
         logFile << "ax1.plot(t, xCoPMax, 'r-.', label='xCoPMax')\n";
         logFile << "ax2.plot(t, yCoPMax, 'b-.', label='yCoPMax')\n";
         logFile << "ax3.plot(t, zCoPMax, 'g-.', label='zCoPMax')\n";
@@ -207,6 +225,7 @@ class HUMOTO_LOCAL Logger
   private:
     std::vector<Eigen::Vector3d> positionsCoM_;
     std::vector<Eigen::Vector3d> positionsCoPMin_;
+    std::vector<Eigen::Vector3d> positionsCoP_;
     std::vector<Eigen::Vector3d> positionsCoPMax_;
     std::vector<Eigen::Vector3d> velocitiesCoM_;
     std::vector<Eigen::Vector3d> accelerationsCoM_;

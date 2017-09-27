@@ -25,4 +25,5 @@
 #include "example/task_cop_bounds.h"
 #include "example/task_cop_bounds_vertical_motion.h"
 #include "example/task_cop_pos_ref.h"
+#include "example/task_kinematic.h"
 #include "example/setup_hierarchy.h"
