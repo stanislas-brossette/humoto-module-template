@@ -80,7 +80,7 @@ int main()
         mpc.logger().plot();
 
         // Execute the command { python plotFile.py } in terminal
-        std::string command = "python plotFile.py";
+        std::string command = "python3 plotFile.py";
         system(command.c_str());
 
         // All Done
