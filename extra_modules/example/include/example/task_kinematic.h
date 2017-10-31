@@ -17,17 +17,17 @@ namespace humoto
 namespace example
 {
 /// @brief Task requiring the CoM to be inside of a polygon approximating the kinematic reachable
-/// area for a biped robot in the form of { Ax < ub }
-class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAU
+/// area for a biped robot in the form of { b < Ax }
+class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
 {
   protected:
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAU)
+#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskAL)
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
     /// @brief Sets the defaults
     void setDefaults()
     {
-        TaskAU::setDefaults();
+        TaskAL::setDefaults();
         number_of_vertices_ = 6;
         min_height_ = 0.6;
         max_height_ = 1.0;
@@ -88,7 +88,7 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAU
         C_.resize(2 * number_of_vertices_, 3);
         C_.setZero();
         computeC();
-        TaskAU::finalize();
+        TaskAL::finalize();
     }
 
   private:
@@ -107,7 +107,7 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAU
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
-    TaskKinematicsPolygon(const double gain = 100) : TaskAU("TaskKinematicsPolygon", gain) {}
+    TaskKinematicsPolygon(const double gain = 100) : TaskAL("TaskKinematicsPolygon", gain) {}
 
     /// @brief Forms the matrices A and b to represent the task
     ///

@@ -36,9 +36,9 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     Eigen::Matrix3d Ablock_;
 
     // Matrices to update the state
-    // x_{k_1} = A*x_k + B*u_k
+    // x_{k+1} = A*x_k + B*u_k
     // y_{k} = C*x_k
-    // y_{k_1} = D*x_k + E*u_k
+    // y_{k+1} = D*x_k + E*u_k
     etools::Matrix9 A_;
     etools::Matrix9x3 B_;
     etools::Matrix6x9 C_;
@@ -66,6 +66,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     /// @brief logger
     Logger logger_;
 
+    /// @brief Computes the building block for A
+    /// Ablock = [1, T, T^2/2]
+    ///          [0, 1, T    ]
+    ///          [0, 0, 1    ]
+    /// @return
     Eigen::Matrix3d computeAblock()
     {
         Ablock_.setIdentity();
@@ -74,6 +79,12 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         Ablock_(1, 2) = t_;
         return Ablock_;
     }
+
+    /// @brief Computes the building block for B
+    /// Bblock = [T^3/6]
+    ///          [T^2/2]
+    ///          [T    ]
+    /// @return
     Eigen::Vector3d computeBblock()
     {
         Bblock_(0) = t_ * t_ * t_ / 6.0;
@@ -83,8 +94,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Computes the A matrix
-    /// x_{k_1} = A*x_k + B*u_k
+    /// x_{k+1} = A*x_k + B*u_k
     ///
+    /// A = [Ablock, 0, 0]
+    ///     [0, Ablock, 0]
+    ///     [0, 0, Ablock]
     /// @return The A matrix
     etools::Matrix9 computeA()
     {
@@ -96,8 +110,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Computes the B matrix
-    /// x_{k_1} = A*x_k + B*u_k
+    /// x_{k+1} = A*x_k + B*u_k
     ///
+    /// B = [Bblock, 0, 0]
+    ///     [0, Bblock, 0]
+    ///     [0, 0, Bblock]
     /// @return The B matrix
     etools::Matrix9x3 computeB()
     {
@@ -130,7 +147,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     }
 
     /// @brief Computes the D matrix
-    /// y_{k_1} = D*x_k + E*u_k
+    /// y_{k+1} = D*x_k + E*u_k
     ///
     /// @return The D matrix
     etools::Matrix6x9 computeD()
