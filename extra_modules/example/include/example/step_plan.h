@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <Eigen/Core>
 
 namespace humoto
 {
@@ -38,6 +39,8 @@ struct FootTraj
 
 struct Polynomial3D
 {
+    double t0;
+    etools::Vector3 x0;
     etools::Vector7 ax;
     etools::Vector7 ay;
     etools::Vector7 az;
@@ -48,9 +51,9 @@ struct Polynomial3D
         trajX.resize(t.size());
         trajY.resize(t.size());
         trajZ.resize(t.size());
-        applyPolynomial(trajX, ax, t);
-        applyPolynomial(trajY, ay, t);
-        applyPolynomial(trajZ, az, t);
+        applyPolynomial(trajX, ax, t, x0[0]);
+        applyPolynomial(trajY, ay, t, x0[1]);
+        applyPolynomial(trajZ, az, t, x0[2]);
         Eigen::IOFormat cleanFmt(4, 0, ", ", "\n", "[", "]");
         std::ofstream logFile("plotPolynomial.py");
 
@@ -75,10 +78,13 @@ struct Polynomial3D
     /// @brief Applies the polynomial defined by coeff to the list of values t and store the result
     /// in res
     void applyPolynomial(Eigen::Ref<Eigen::VectorXd> res, const Eigen::VectorXd& coeff,
-                         const Eigen::Ref<Eigen::VectorXd> t)
+                         Eigen::VectorXd t, double x0)
     {
-        //std::cout << "Apply Polynomial" << std::endl;
-        //std::cout << "t: \n" << t << std::endl;
+        //Vector t - t0
+        for (long i = 0; i < t.size(); ++i)
+        {
+            t[i] = t[i] - t0;
+        }
         Eigen::VectorXd tmp = Eigen::VectorXd::Constant(t.size(), 1.0);
         Eigen::MatrixXd M(t.size(), coeff.size());
         for (long i = 0; i < coeff.size(); ++i)
@@ -86,10 +92,7 @@ struct Polynomial3D
             M.col(i) = tmp;
             tmp = tmp.cwiseProduct(t);
         }
-        // std::cout << "M: \n" << M << std::endl;
-        // std::cout << "coeff: \n" << coeff << std::endl;
-        res = M * coeff;
-        //std::cout << "res: \n" << res << std::endl;
+        res = M * coeff + Eigen::VectorXd::Constant(t.size(), x0);
     }
 };
 
@@ -280,11 +283,15 @@ StepPlan::StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
 Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& nextStep,
                                              const double& hStep)
 {
-    etools::Vector3 X0(prevStep.x(), prevStep.y(), prevStep.z());
-    etools::Vector3 X1(nextStep.x(), nextStep.y(), nextStep.z());
+    Polynomial3D res;
+    res.x0 = prevStep.pos();
+    res.t0 = prevStep.tMax();
+
+    etools::Vector3 X0(0.0, 0.0, 0.0);
+    etools::Vector3 X1(nextStep.x()-prevStep.x(), nextStep.y()-prevStep.y(), nextStep.z()-prevStep.z());
     etools::Vector3 Xmid = 0.5 * (X1 + X0) + etools::Vector3(0, 0, hStep);
     // T0 and its powers
-    double T0 = prevStep.tMax();
+    double T0 = 0.0;
     double T02 = T0 * T0;
     double T03 = T02 * T0;
     double T04 = T03 * T0;
@@ -292,7 +299,7 @@ Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& n
     double T06 = T05 * T0;
 
     // T1 and its powers
-    double T1 = nextStep.tMin();
+    double T1 = nextStep.tMin()-prevStep.tMax();
     double T12 = T1 * T1;
     double T13 = T12 * T1;
     double T14 = T13 * T1;
@@ -300,7 +307,7 @@ Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& n
     double T16 = T15 * T1;
 
     // Tmid and its powers
-    double Tm = (T0 + T1) / 2;
+    double Tm = T1/2;
     double Tm2 = Tm * Tm;
     double Tm3 = Tm2 * Tm;
     double Tm4 = Tm3 * Tm;
@@ -323,10 +330,10 @@ Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& n
     M.row(4) << 0, 1, 2 * T1, 3 * T12, 4 * T13, 5 * T14, 6 * T15;
     M.row(5) << 0, 0, 2, 6 * T1, 12 * T12, 20 * T13, 30 * T14;
     M.row(6) << 1, Tm, Tm2, Tm3, Tm4, Tm5, Tm6;
-    Polynomial3D res;
     res.ax = M.colPivHouseholderQr().solve(bx);
     res.ay = M.colPivHouseholderQr().solve(by);
     res.az = M.colPivHouseholderQr().solve(bz);
+    Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
     return res;
 }
 
@@ -367,14 +374,11 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
         size_t nTimeSteps = (size_t)(durationFlight / dt);
         Polynomial3D p = computeFeetTrajectory(steps.at(iStep), steps.at(iStep + 1), heightSteps_);
         p.applyPolynomial(footTraj.x_.segment(iTimeStep, nTimeSteps), p.ax,
-                          time.segment(iTimeStep, nTimeSteps));
+                          time.segment(iTimeStep, nTimeSteps), p.x0[0]);
         p.applyPolynomial(footTraj.y_.segment(iTimeStep, nTimeSteps), p.ay,
-                          time.segment(iTimeStep, nTimeSteps));
+                          time.segment(iTimeStep, nTimeSteps), p.x0[1]);
         p.applyPolynomial(footTraj.z_.segment(iTimeStep, nTimeSteps), p.az,
-                          time.segment(iTimeStep, nTimeSteps));
-        std::cout << "Z polynomial" << std::endl;
-        std::cout << "footTraj.z_.segment(iTimeStep,nTimeSteps): \n" << footTraj.z_.segment(iTimeStep,nTimeSteps) << std::endl;
-
+                          time.segment(iTimeStep, nTimeSteps), p.x0[2]);
 
         iTimeStep += nTimeSteps;
         currentTime += nTimeSteps * dt;
@@ -409,7 +413,6 @@ void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightS
         if (rightSteps_[i].tMax() > tMax_) tMax_ = rightSteps_[i].tMax();
 
     int nTimeSteps = tMax_ / T_;
-    std::cout << "nTimeSteps: " << nTimeSteps << std::endl;
     Eigen::VectorXd time(nTimeSteps);
     for (long i = 0; i < nTimeSteps; i++)
     {
@@ -430,9 +433,7 @@ void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightS
 
     rightFoot_.resize(nTimeSteps+1);
     leftFoot_.resize(nTimeSteps+1);
-    std::cout << "\n\nCompute full RIGHT feet traj:" << std::endl;
     computeFullFeetTrajectory(rightFoot_, rightSteps, T_);
-    std::cout << "\n\nCompute full LEFT feet traj:" << std::endl;
     computeFullFeetTrajectory(leftFoot_, leftSteps, T_);
 
     for (long iTimeStep = 0; iTimeStep < nTimeSteps; iTimeStep++)
