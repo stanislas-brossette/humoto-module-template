@@ -37,7 +37,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief length of one time step
     double t_;
     /// @brief number of time steps in horizon
-    size_t n_;
+    size_t nHorizon_;
     /// @brief total number of iterations to reach endTime_
     size_t nIterations_;
     /// @brief End time of the control
@@ -65,6 +65,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     double gainTaskCoPPosRef_;
     /// @brief gain of the kinematics rectangle task
     double gainTaskKinematicsRectangle_;
+    /// @brief gain of the kinematics polygon task
+    double gainTaskKinematicsPolygon_;
     /// @brief Minimum height of the CoM in kinematic task
     double kinematicLimitZmin_;
     /// @brief Maximum height of the CoM in kinematic task
@@ -83,7 +85,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(zetaZero)                    \
     HUMOTO_CONFIG_SCALAR_(zetaSpan)                    \
     HUMOTO_CONFIG_SCALAR_(t)                           \
-    HUMOTO_CONFIG_SCALAR_(n)                           \
+    HUMOTO_CONFIG_SCALAR_(nHorizon)                    \
     HUMOTO_CONFIG_SCALAR_(endTime)                     \
     HUMOTO_CONFIG_COMPOUND_(comVelRef)                 \
     HUMOTO_CONFIG_SCALAR_(comHeightRef)                \
@@ -93,6 +95,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef)           \
     HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk)             \
     HUMOTO_CONFIG_SCALAR_(gainTaskKinematicsRectangle) \
+    HUMOTO_CONFIG_SCALAR_(gainTaskKinematicsPolygon)   \
     HUMOTO_CONFIG_SCALAR_(kinematicLimitZmin)          \
     HUMOTO_CONFIG_SCALAR_(kinematicLimitZmax)          \
     HUMOTO_CONFIG_SCALAR_(kinematicLimitXSpan)         \
@@ -118,7 +121,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         zetaZero_ = 0;
         zetaSpan_ = 20;
         t_ = 0.005;
-        n_ = 100;
+        nHorizon_ = 100;
         endTime_ = 10;
         comVelRef_(0) = 0.1;
         comVelRef_(1) = 0;

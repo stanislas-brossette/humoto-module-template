@@ -231,9 +231,9 @@ class HUMOTO_LOCAL Logger
         logFile << "ax1.set_ylabel('x (m)')\n";
         logFile << "ax2.set_ylabel('y (m)')\n";
         logFile << "ax3.set_ylabel('z (m)')\n";
-        logFile << "ax1.legend(loc='upper center', shadow=True)\n";
-        logFile << "ax2.legend(loc='upper center', shadow=True)\n";
-        logFile << "ax3.legend(loc='upper center', shadow=True)\n";
+        logFile << "ax1.legend(loc='upper right', shadow=True)\n";
+        logFile << "ax2.legend(loc='upper right', shadow=True)\n";
+        logFile << "ax3.legend(loc='upper right', shadow=True)\n";
         logFile << "plt.axis('auto')\n";
         logFile << "plt.show()\n";
 
@@ -247,6 +247,16 @@ class HUMOTO_LOCAL Logger
         logFile << "ax.plot(x, y, z, 'g', label='CoM')\n";
         logFile << "ax.plot(xCoP, yCoP, zCoP, 'y', label='CoP')\n";
         logFile << "ax.legend()\n";
+        logFile << "plt.show()\n";
+
+        /****************************************
+        *  PLOT SAGITAL AND TRANSVERSE MOTION  *
+        ****************************************/
+        logFile << "f, (ax1, ax2) = plt.subplots(2, sharex=False, sharey=False)\n";
+        logFile << "ax1.plot(y, z, 'r', label='z_CoM = f(y_CoM)')\n";
+        logFile << "ax2.plot(x, z, 'b', label='z_CoM = f(x_CoM)')\n";
+        logFile << "ax1.legend(loc='upper right', shadow=False)\n";
+        logFile << "ax2.legend(loc='upper right', shadow=False)\n";
         logFile << "plt.show()\n";
         logFile.close();
     }

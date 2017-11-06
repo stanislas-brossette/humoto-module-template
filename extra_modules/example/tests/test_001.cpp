@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <string>
 
 #define HUMOTO_GLOBAL_LOGGER_ENABLED
 
@@ -25,39 +26,52 @@ HUMOTO_INITIALIZE_GLOBAL_LOGGER(std::cout);
 
 /// @brief Implementation and resolution of the problem described in test_000.yaml
 
-int main()
+int main(int argc, char *argv[])
 {
     // All the execution is in a try scope in order to be able to catch exceptions
     try
     {
-        std::string config_file_name = "extra_modules/example/tests/test_001.yaml";
+        std::string config_folder = "extra_modules/example/tests/";
+        std::string file_name = "test_001.yaml";
+        if(argc >= 2)
+          file_name = argv[1];
+        std::string config_file_name = config_folder + file_name;
+
+
 
         // yaml configuration file reader
+        std::cout << "Read config" << std::endl;
         humoto::config::yaml::Reader config_reader(config_file_name);
 
         // optimization problem (a stack of tasks / hierarchy)
         humoto::OptimizationProblem opt_problem;
 
         // parameters of the solver
+        std::cout << "Solver parameters" << std::endl;
         humoto::qpoases::SolverParameters solver_parameters(config_reader);
 
         // Actual solver (initialized with solver_parameters)
+        std::cout << "Solver" << std::endl;
         humoto::qpoases::Solver solver(solver_parameters);
 
         // Structure that will contain the solutions
         humoto::qpoases::Solution solution;
 
         // Problems parameters
+        std::cout << "Problem parameters" << std::endl;
         humoto::example::ProblemParameters problem_parameters(config_reader);
 
         // model and state representing the controlled system
+        std::cout << "Model" << std::endl;
         humoto::example::ModelState model_state(config_reader);
         humoto::example::Model model(model_state);
 
         // control problem, which is used to construct an optimization problem
+        std::cout << "MPC" << std::endl;
         humoto::example::MPCVerticalMotion mpc(problem_parameters);
 
         // Populate the optimization problem
+        std::cout << "Hierarchy" << std::endl;
         setupHierarchy_v1(opt_problem, problem_parameters);
 
         for (unsigned int i = 0; i < problem_parameters.nIterations_; ++i)

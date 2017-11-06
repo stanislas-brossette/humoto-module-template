@@ -27,7 +27,9 @@ parser.add_argument("--radius", help="Radius of the sphere",
 parser.add_argument("--center", help="Center of the sphere", nargs=3,
         type=float, default=default_center)
 parser.add_argument("--fileName", help="Name of the file where to write the constraint",
-        type=str, default='constraint.out')
+        type=str, default='../../example/task_kinematic.h.in')
+parser.add_argument("--plot", help="If True, the constraint polygon is plotted",
+        type=bool, default='False')
 args = parser.parse_args()
 
 flatPolygon = collections.namedtuple('flatPolygon', ['vertices', 'normal', 'center'])
@@ -35,39 +37,80 @@ cstr = collections.namedtuple('cstr', ['A', 'b'])
 
 def main(args):
     center = np.array(args.center)
-    radius = args.radius
     nIter = args.nIter
+    radius = args.radius
     height = args.height
+
     faces = discretizeSphere(center, radius, nIter)
     spherePolygons = computeNormals(faces, center)
     constraintPolygons = cutSphere(spherePolygons, height, center)
     constraint = polygonToMatrixConstraint(constraintPolygons)
-    writeConstraintToFile(constraint, args.fileName)
+    writeConstraintToFile(constraint, args)
 
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    ax = addFacesToPlot(ax, constraintPolygons)
-    ax = addNormalsToPlot(ax, constraintPolygons)
-    ax.set_xlim(-1.0, 1.0)
-    ax.set_ylim(-1.0, 1.0)
-    ax.set_zlim(-1.0, 1.0)
+    if args.plot:
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax = addFacesToPlot(ax, constraintPolygons)
+        ax = addNormalsToPlot(ax, constraintPolygons)
+        ax = addRandomPointsCheck(ax, constraintPolygons, 1000)
+        ax.set_xlim(-1.0, 1.0)
+        ax.set_ylim(-1.0, 1.0)
+        ax.set_zlim(-1.0, 1.0)
+        plt.show()
 
-    ax = addRandomPointsCheck(ax, constraintPolygons, 1000)
-    plt.show()
     return
 
-def writeConstraintToFile(constraint, fileName):
-    myFile = open(fileName, 'w')
-    myFile.write('#Constraint Ax>b\n')
-    myFile.write('A = ')
-    myFile.write(np.array_str(constraint.A))
-    myFile.write('\nb = ')
-    myFile.write(np.array_str(constraint.b))
-    myFile.close()
-    #print('A', np.array_str(constraint.A))
-    #print('b', np.array_str(constraint.b))
-    #np.savetxt(fileName, constraint.A)
-    #np.savetxt(fileName, constraint.b)
+def writeConstraintToFile(constraint, args):
+    A = constraint.A
+    b = constraint.b
+    myFile = open(args.fileName, 'w')
+    myFile.write('#pragma once\n')
+    myFile.write('#include <Eigen/Core>\n\n')
+    myFile.write('class GeneratedKinematicConstraint\n')
+    myFile.write('{\n')
+    myFile.write('  public:\n')
+    myFile.write('    double height_;\n')
+    myFile.write('    double radius_;\n')
+    myFile.write('    int nIter_;\n')
+    myFile.write('    Eigen::Vector3d center_;\n')
+    myFile.write('    Eigen::MatrixXd A;\n')
+    myFile.write('    Eigen::VectorXd b;\n')
+    myFile.write('    GeneratedKinematicConstraint()\n')
+    myFile.write('    {\n')
+    myFile.write('      height_ = ')
+    myFile.write(str(args.height))
+    myFile.write(';\n      nIter_ = ')
+    myFile.write(str(args.nIter))
+    myFile.write(';\n      radius_ = ')
+    myFile.write(str(args.radius))
+    myFile.write(';\n      center_ = Eigen::Vector3d(')
+    myFile.write(str(args.center[0]))
+    myFile.write(', ')
+    myFile.write(str(args.center[1]))
+    myFile.write(', ')
+    myFile.write(str(args.center[2]))
+    myFile.write(');\n      A.resize(')
+    myFile.write(str(A.shape[0]))
+    myFile.write(',')
+    myFile.write(str(A.shape[1]))
+    myFile.write(');\n')
+    myFile.write('      b.resize(')
+    myFile.write(str(b.shape[0]))
+    myFile.write(');\n')
+    myFile.write('      A << ')
+    for i in np.arange(A.shape[0]):
+        for j in np.arange(A.shape[1]):
+            myFile.write(str(A[i,j]))
+            if not (i == A.shape[0]-1 and j == A.shape[1]-1):
+                myFile.write(', ')
+    myFile.write(';\n')
+    myFile.write('      b << ')
+    for i in np.arange(b.shape[0]):
+        myFile.write(str(b[i,0]))
+        if i != b.shape[0]-1:
+            myFile.write(', ')
+    myFile.write(';\n')
+    myFile.write('    }\n};\n')
 
 #Computes A and b such that b<Ax if the x is inside the polytope
 def polygonToMatrixConstraint(polygon):

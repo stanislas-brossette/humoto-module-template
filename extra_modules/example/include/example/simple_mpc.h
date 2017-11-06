@@ -134,7 +134,7 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
         computeD();
         computeE();
         // condense the A, B, D, E matrices to get the Ux, Uu, Ox and Ou matrices
-        condenseTimeInvariant(Ux_, Uu_, pbParams_.n_, A_, B_);
+        condenseTimeInvariant(Ux_, Uu_, pbParams_.nHorizon_, A_, B_);
         condenseOutput(Ox_, Ou_, D_, E_, Ux_, Uu_);
     }
 
@@ -169,7 +169,7 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     {
         sol_structure_.reset();
         // Add a variable of size 3*n called JERK_VARIABLE_ID to the structure of the solution
-        sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.n_ * 3);
+        sol_structure_.addSolutionPart("JERK_VARIABLE_ID", problem_parameters.nHorizon_ * 3);
 
         currentState_ = model.state_.getStateVector();
 
@@ -204,7 +204,7 @@ class HUMOTO_LOCAL SimpleMPC : public humoto::MPC
     }
 
     /// @brief Getter for PreviewHorizonLength
-    size_t getPreviewHorizonLength() const { return pbParams_.n_; }
+    size_t getPreviewHorizonLength() const { return pbParams_.nHorizon_; }
     /// @brief Getter for currentStepIndex
     size_t currentStepIndex() const { return currentStepIndex_; }
 

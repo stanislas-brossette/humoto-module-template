@@ -77,8 +77,8 @@ struct Polynomial3D
     void applyPolynomial(Eigen::Ref<Eigen::VectorXd> res, const Eigen::VectorXd& coeff,
                          const Eigen::Ref<Eigen::VectorXd> t)
     {
-        // std::cout << "Apply Polynomial" << std::endl;
-        // std::cout << "t: \n" << t << std::endl;
+        //std::cout << "Apply Polynomial" << std::endl;
+        //std::cout << "t: \n" << t << std::endl;
         Eigen::VectorXd tmp = Eigen::VectorXd::Constant(t.size(), 1.0);
         Eigen::MatrixXd M(t.size(), coeff.size());
         for (long i = 0; i < coeff.size(); ++i)
@@ -89,7 +89,7 @@ struct Polynomial3D
         // std::cout << "M: \n" << M << std::endl;
         // std::cout << "coeff: \n" << coeff << std::endl;
         res = M * coeff;
-        // std::cout << "res: \n" << res << std::endl;
+        //std::cout << "res: \n" << res << std::endl;
     }
 };
 
@@ -116,12 +116,19 @@ class HUMOTO_LOCAL Step
     {
     }
 
+    void print() const
+    {
+      std::cout << "[" << pos().transpose() << ", " << tMin_ << ", " << tMax_ << "]" << std::endl;
+    }
+
     /// @brief Getter for x
     const double& x() const { return x_; }
     /// @brief Getter for y
     const double& y() const { return y_; }
     /// @brief Getter for z
     const double& z() const { return z_; }
+    /// @brief Getter for position {x, y, z}
+    const Eigen::Vector3d pos() const { return Eigen::Vector3d(x_, y_, z_); }
     /// @brief Getter for tMin
     const double& tMin() const { return tMin_; }
     /// @brief Getter for tMax
@@ -204,6 +211,9 @@ class HUMOTO_LOCAL StepPlan
     /// @brief Getter for z
     const Eigen::VectorXd& z() const { return z_; }
 
+    /// @brief Getter for position of support foot {x0,y0,z0,x1,y1,z1,...xN,yN,zN} (middle of both foot in DS phase)
+    const Eigen::VectorXd& pos() const { return pos_; }
+
     /// @brief Getter for tMax
     const double& tMax() const { return tMax_; }
 
@@ -229,6 +239,9 @@ class HUMOTO_LOCAL StepPlan
     /// @brief Evolution of the altitude of the single support foot
     Eigen::VectorXd z_;
 
+    /// @brief Evolution of the position of the support foot {x0,y0,z0,x1,y1,z1,...xN,yN,zN} (middle of both foot in DS phase)
+    Eigen::VectorXd pos_;
+
     double tMax_;
     double T_;
 
@@ -248,6 +261,7 @@ StepPlan::StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
                    double hStep)
     : T_(T), heightSteps_(hStep)
 {
+    std::cout << "Ctor StepPlan" << std::endl;
     for (size_t i = 0; i < leftStepsParameters.size(); ++i)
     {
         HUMOTO_ASSERT(leftStepsParameters.at(i).size() == 5,
@@ -313,37 +327,30 @@ Polynomial3D StepPlan::computeFeetTrajectory(const Step& prevStep, const Step& n
     res.ax = M.colPivHouseholderQr().solve(bx);
     res.ay = M.colPivHouseholderQr().solve(by);
     res.az = M.colPivHouseholderQr().solve(bz);
-    // std::cout << "M: \n" << M << std::endl;
-    // std::cout << "ax: " << res.ax.transpose() << std::endl;
-    // std::cout << "ay: " << res.ay.transpose() << std::endl;
-    // std::cout << "az: " << res.az.transpose() << std::endl;
-    // std::cout << "bx: " << bx.transpose() << std::endl;
-    // std::cout << "by: " << by.transpose() << std::endl;
-    // std::cout << "bz: " << bz.transpose() << std::endl;
-    // etools::Vector7 testX = M*res.ax-bx;
-    // etools::Vector7 testY = M*res.ay-by;
-    // etools::Vector7 testZ = M*res.az-bz;
-    //
-    // std::cout << "M*ax-bx = " << testX.transpose() << std::endl;
-    // std::cout << "M*ay-by = " << testY.transpose() << std::endl;
-    // std::cout << "M*az-bz = " << testZ.transpose() << std::endl;
-    //res.plotBetween(T0, T1);
     return res;
 }
 
 void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> steps,
                                          const double dt)
 {
+    std::cout << "computeFullFeetTrajectory" << std::endl;
+    for(size_t i = 0; i < steps.size(); ++i)
+    {
+      steps[i].print();
+    }
     size_t iStep = 0;
     size_t iTimeStep = 0;
     double currentTime = 0.0;
 
     Eigen::VectorXd time(footTraj.x_.size());
+
     for (long i = 0; i < time.size(); ++i)
     {
         time[i] = i * dt;
     }
+
     footTraj.t_ = time;
+
     while (currentTime < steps.at(iStep).tMax())
     {
         footTraj.x_[iTimeStep] = steps[iStep].x();
@@ -352,6 +359,7 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
         iTimeStep++;
         currentTime += dt;
     }
+
     for (size_t iStep = 0; iStep < steps.size() - 1; iStep++)
     {
         // We first handle the phase where the foot is in the air
@@ -364,6 +372,9 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
                           time.segment(iTimeStep, nTimeSteps));
         p.applyPolynomial(footTraj.z_.segment(iTimeStep, nTimeSteps), p.az,
                           time.segment(iTimeStep, nTimeSteps));
+        std::cout << "Z polynomial" << std::endl;
+        std::cout << "footTraj.z_.segment(iTimeStep,nTimeSteps): \n" << footTraj.z_.segment(iTimeStep,nTimeSteps) << std::endl;
+
 
         iTimeStep += nTimeSteps;
         currentTime += nTimeSteps * dt;
@@ -382,6 +393,7 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
 
 void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightSteps)
 {
+    std::cout << "ComputePlan" << std::endl;
     Phase currentPhase;
     leftSteps_ = leftSteps;
     rightSteps_ = rightSteps;
@@ -397,6 +409,7 @@ void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightS
         if (rightSteps_[i].tMax() > tMax_) tMax_ = rightSteps_[i].tMax();
 
     int nTimeSteps = tMax_ / T_;
+    std::cout << "nTimeSteps: " << nTimeSteps << std::endl;
     Eigen::VectorXd time(nTimeSteps);
     for (long i = 0; i < nTimeSteps; i++)
     {
@@ -413,10 +426,13 @@ void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightS
     yMax_.setZero();
     z_.resize(nTimeSteps);
     z_.setZero();
+    pos_.resize(3*nTimeSteps);
 
-    rightFoot_.resize(nTimeSteps);
-    leftFoot_.resize(nTimeSteps);
+    rightFoot_.resize(nTimeSteps+1);
+    leftFoot_.resize(nTimeSteps+1);
+    std::cout << "\n\nCompute full RIGHT feet traj:" << std::endl;
     computeFullFeetTrajectory(rightFoot_, rightSteps, T_);
+    std::cout << "\n\nCompute full LEFT feet traj:" << std::endl;
     computeFullFeetTrajectory(leftFoot_, leftSteps, T_);
 
     for (long iTimeStep = 0; iTimeStep < nTimeSteps; iTimeStep++)
@@ -492,7 +508,12 @@ void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightS
             throw std::logic_error(
                 "Phases other than LSS, RSS and DS are not handled. Is that a balistic phase?");
         }
+
+        pos_[3 * iTimeStep] = (xMin_[iTimeStep] + xMax_[iTimeStep]) / 2;
+        pos_[3 * iTimeStep + 1] = (yMin_[iTimeStep] + yMax_[iTimeStep]) / 2;
+        pos_[3 * iTimeStep + 2] = z_[iTimeStep];
     }
+    std::cout << "Plan Computed" << std::endl;
 }
 } /* example */
 
