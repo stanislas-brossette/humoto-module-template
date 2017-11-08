@@ -59,12 +59,20 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const ProblemParameters& pb_params_;
     /// @brief Matrix to select velocities out of the state vector
     etools::SelectionMatrix velocity_selector_;
+
     /// @brief Plan for the steps to take (predefined)
     StepPlan step_plan_;
+    /// @brief Trajectory of the right foot
+    FootTraj rightFootTraj_;
+    /// @brief Trajectory of the left foot
+    FootTraj leftFootTraj_;
+
     /// @brief Current step index
     size_t current_step_index_;
+
     /// @brief logger
     Logger logger_;
+
 
     /// @brief Computes the building block for A
     /// Ablock = [1, T, T^2/2]
@@ -174,9 +182,11 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
         : pb_params_(pbParam),
           velocity_selector_(3, 1),
           step_plan_(pb_params_.leftStepsParameters_, pb_params_.rightStepsParameters_,
-                     pb_params_.t_),
+                     pb_params_.t_, pb_params_.stepHeight_),
+          rightFootTraj_(step_plan_.rightFoot()),
+          leftFootTraj_(step_plan_.leftFoot()),
           current_step_index_(0),
-          logger_(pb_params_.t_, step_plan_, pb_params_)
+          logger_(pb_params_.t_, step_plan_, rightFootTraj_, leftFootTraj_, pb_params_)
     {
         std::cout << "Ctor MPCVerticalMotion" << std::endl;
         t_ = pb_params_.t_;
@@ -200,6 +210,7 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const ProblemParameters& pbParams() const { return pb_params_; }
     /// @brief Getter for velocity_selector
     const etools::SelectionMatrix& velocity_selector() const { return velocity_selector_; }
+
     /// @brief Getter for Uu
     const Eigen::MatrixXd& Uu() const { return Uu_; }
     /// @brief Getter for Ux
@@ -208,12 +219,19 @@ class HUMOTO_LOCAL MPCVerticalMotion : public humoto::MPC
     const Eigen::MatrixXd& Ou() const { return Ou_; }
     /// @brief Getter for Ox
     const Eigen::MatrixXd& Ox() const { return Ox_; }
+
     /// @brief Getter for currentState
     const etools::Vector9& currentState() const { return current_state_; }
     /// @brief Getter for logger
     const Logger& logger() const { return logger_; }
+    Logger& logger() { return logger_; }
+
     /// @brief Getter for stepPlan
     const StepPlan& stepPlan() const { return step_plan_; }
+    /// @brief Getter for rightFootTraj
+    const FootTraj& rightFootTraj() const { return rightFootTraj_; }
+    /// @brief Getter for leftFootTraj
+    const FootTraj& leftFootTraj() const { return leftFootTraj_; }
 
     /// @brief Getter for zetaMin
     const double& zetaMin() const { return zetaMin_; }

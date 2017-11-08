@@ -24,16 +24,17 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief height of center of mass
     double h_CoM_;
 
-    /// @brief Min value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
-    // double zetaMin_;
-    /// @brief Max value of the quantity { zeta = (c_z - p_z) / (ddc_z + g_z) }
-    // double zetaMax_;
-
+    /*****************************************
+    *  ZETA PARAMETERS FOR VERTICAL MOTION  *
+    *****************************************/
     /// @brief Initial value of Zeta { zeta = (c_z - p_z) / (ddc_z + g_z) }
     double zetaZero_;
     /// @brief Span in which zeta can be: { zeta_k - zetaSpan/2 < zeta_{k+1} < zeta_k + zetaSpan/2}
     double zetaSpan_;
 
+    /***************************************
+    *  TIME PARAMETERS OF THE SIMULATION  *
+    ***************************************/
     /// @brief length of one time step
     double t_;
     /// @brief number of time steps in horizon
@@ -43,16 +44,27 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     /// @brief End time of the control
     double endTime_;
 
+    /******************************************
+    *  REFERENCE HEIGHT AND VELOCITY OF CoM  *
+    ******************************************/
     /// @brief target com speed
     etools::Vector3 comVelRef_;
     /// @brief target com height
     double comHeightRef_;
 
+    /****************
+    *  STEP PLANS  *
+    ****************/
     /// @brief parameters of the right stepping plan
     std::vector<std::vector<double> > leftStepsParameters_;
     /// @brief parameters of the right stepping plan
     std::vector<std::vector<double> > rightStepsParameters_;
+    /// @brief height of the foot trajectory between steps
+    double stepHeight_;
 
+    /***********************
+    *  CONSTRAINTS GAINS  *
+    ***********************/
     /// @brief gain of the CoM velocity task
     double gainTaskVelocity_;
     /// @brief gain of the CoM Height task
@@ -67,6 +79,10 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     double gainTaskKinematicsRectangle_;
     /// @brief gain of the kinematics polygon task
     double gainTaskKinematicsPolygon_;
+
+    /***************************************************
+    *  KINEMATIC DIMENSIONS FOR RECTANGLE CONSTRAINT  *
+    ***************************************************/
     /// @brief Minimum height of the CoM in kinematic task
     double kinematicLimitZmin_;
     /// @brief Maximum height of the CoM in kinematic task
@@ -75,6 +91,17 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     double kinematicLimitXSpan_;
     /// @brief Width of the reachable Y of the CoM in kinematic task
     double kinematicLimitYSpan_;
+
+    /***********************************************
+    *  KINEMATIC PARAMETERS DESCRIBING THE ROBOT  *
+    ***********************************************/
+    /// @brief Vector from sole center to ankle
+    Eigen::Vector3d soleToAnkle_;
+    /// @brief Vector from CoM to right hip
+    Eigen::Vector3d comToRightHip_;
+    /// @brief Vector from CoM to left hip
+    Eigen::Vector3d comToLeftHip_;
+
 
   protected:
 /// Those macros define the necessary tools to read the variables from a yaml configuration file
@@ -91,6 +118,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(comHeightRef)                \
     HUMOTO_CONFIG_COMPOUND_(leftStepsParameters)       \
     HUMOTO_CONFIG_COMPOUND_(rightStepsParameters)      \
+    HUMOTO_CONFIG_SCALAR_(stepHeight)                  \
     HUMOTO_CONFIG_SCALAR_(gainTaskVelocity)            \
     HUMOTO_CONFIG_SCALAR_(gainTaskCoPPosRef)           \
     HUMOTO_CONFIG_SCALAR_(gainTaskMinJerk)             \
@@ -100,7 +128,10 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(kinematicLimitZmax)          \
     HUMOTO_CONFIG_SCALAR_(kinematicLimitXSpan)         \
     HUMOTO_CONFIG_SCALAR_(kinematicLimitYSpan)         \
-    HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds)
+    HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds)           \
+    HUMOTO_CONFIG_COMPOUND_(soleToAnkle)               \
+    HUMOTO_CONFIG_COMPOUND_(comToRightHip)             \
+    HUMOTO_CONFIG_COMPOUND_(comToLeftHip)
 #define HUMOTO_CONFIG_CONSTRUCTOR ProblemParameters
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
@@ -123,6 +154,7 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         t_ = 0.005;
         nHorizon_ = 100;
         endTime_ = 10;
+        stepHeight_ = 0.2;
         comVelRef_(0) = 0.1;
         comVelRef_(1) = 0;
         comVelRef_(2) = 0;

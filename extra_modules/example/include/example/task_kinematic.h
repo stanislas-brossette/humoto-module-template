@@ -70,30 +70,45 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
     void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
               const humoto::ControlProblem &control_problem)
     {
+        Eigen::IOFormat fmt(5, 0, ", ", ",\n", "[", "]", "[", "]");
         // Downcast the control problem into a simpleMPC type
         const humoto::example::MPCVerticalMotion &mpc =
             dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
 
-        if (!computedABlocks_)
+        GeneratedKinematicConstraint cstr;
+        long N = (long)mpc.getPreviewHorizonLength();
+        long cRows = cstr.A.rows();
+        long cCols = cstr.A.cols();
+        ABlocks_.resize(2 * N * cRows, N * cCols);
+        bBlocks_.resize(2 * N * cRows);
+        ABlocks_.setZero();
+        bBlocks_.setZero();
+
+        Eigen::Vector3d s2a = mpc.pbParams().soleToAnkle_;
+        Eigen::Vector3d com2rHip = mpc.pbParams().comToRightHip_;
+        Eigen::Vector3d com2lHip = mpc.pbParams().comToLeftHip_;
+        const FootTraj &rFootTraj = mpc.rightFootTraj();
+        const FootTraj &lFootTraj = mpc.leftFootTraj();
+
+        for (long i = 0; i < N; ++i)
         {
-            GeneratedKinematicConstraint cstr;
-            long N = (long)mpc.getPreviewHorizonLength();
-            long cRows = cstr.A.rows();
-            long cCols = cstr.A.cols();
-            ABlocks_.resize(N * cRows, N * cCols);
-            bBlocks_.resize(N * cRows);
-            //xFoot_.resize(200);
-            //yFoot_.resize(200);
-            //zFoot_.resize(200);
-            ABlocks_.setZero();
-            bBlocks_.setZero();
-            for (long i = 0; i < N; ++i)
+            // Right leg feasibility
+            ABlocks_.block(2 * i * cRows, i * cCols, cRows, cCols) = cstr.A;
+            bBlocks_.segment(2 * i * cRows, cRows) =
+                cstr.b - cstr.A * (com2rHip - rFootTraj(mpc.currentStepIndex() + i) - s2a);
+            // Left leg feasibility
+            ABlocks_.block((2 * i + 1) * cRows, i * cCols, cRows, cCols) = cstr.A;
+            bBlocks_.segment((2 * i + 1) * cRows, cRows) =
+                cstr.b - cstr.A * (com2lHip - lFootTraj(mpc.currentStepIndex() + i) - s2a);
+            if (i == 0)
             {
-                ABlocks_.block(i * cRows, i * cCols, cRows, cCols) = cstr.A;
-                bBlocks_.segment(i * cRows, cRows) = cstr.b;
+                double maxZ = computeHighestFeasibleZ(mpc.currentState()[0], mpc.currentState()[3],
+                                                      ABlocks_.block(0, 0, 2 * cRows, cCols),
+                                                      bBlocks_.segment(0, 2 * cRows));
+                mpc.logger().addHighestFeasibleZ(maxZ, mpc.currentStepIndex());
             }
-            computedABlocks_ = true;
         }
+
 
         // Initialize the matrices A and b
         Eigen::MatrixXd &A = getA();
@@ -103,131 +118,27 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
 
         etools::SelectionMatrix posSelector(3, 0);
 
-        Eigen::VectorXd supportFootPos(3 * mpc.getPreviewHorizonLength());
-        supportFootPos = mpc.stepPlan().pos().segment(3 * mpc.currentStepIndex(),
-                                                      3 * mpc.getPreviewHorizonLength());
-
-        //xFoot_[mpc.currentStepIndex()] = supportFootPos[0];
-        //yFoot_[mpc.currentStepIndex()] = supportFootPos[1];
-        //zFoot_[mpc.currentStepIndex()] = supportFootPos[2];
-        //std::cout << "xFoot_ = np.array([" << xFoot_.transpose() << "])" << std::endl;
-        //std::cout << "yFoot_ = np.array([" << yFoot_.transpose() << "])" << std::endl;
-        //std::cout << "zFoot_ = np.array([" << zFoot_.transpose() << "])" << std::endl;
-
         // Compute the A and b matrices
         A.noalias() = getGain() * ABlocks_ * (posSelector * mpc.Uu());
         b.noalias() =
-            getGain() *
-            (bBlocks_ + ABlocks_ * (supportFootPos - posSelector * mpc.Ux() * mpc.currentState()));
-        //std::cout << "ABlocks_: \n" << ABlocks_ << std::endl;
-        //std::cout << "bBlocks_: \n" << bBlocks_ << std::endl;
-        //std::cout << "mpc.Uu(): \n" << mpc.Uu() << std::endl;
-        //std::cout << "mpc.Ux(): \n" << mpc.Ux() << std::endl;
-        //std::cout << "mpc.currentState(): \n" << mpc.currentState() << std::endl;
-        //std::cout << "supportFootPos: \n" << supportFootPos << std::endl;
-        //std::cout << "A: \n" << A << std::endl;
-        //std::cout << "b: \n" << b << std::endl;
-    };
-};
-
-/// @brief Task requiring the CoM to be inside of a rectangle approximating the kinematic reachable
-/// area for a biped robot in the form of { lb < Ax < ub }
-class HUMOTO_LOCAL TaskKinematicsRectangle : public humoto::TaskALU
-{
-  protected:
-#define HUMOTO_CONFIG_ENTRIES HUMOTO_CONFIG_PARENT_CLASS(TaskALU)
-#include HUMOTO_CONFIG_DEFINE_ACCESSORS
-
-    /// @brief Sets the defaults
-    void setDefaults();
-
-    /// @brief Finalizes the class initialization
-    void finalize();
-
-  private:
-    /// @brief min and max heights of the polygons
-    double min_height_, max_height_;
-    /// @brief width along x and y of the polygons
-    double width_x_, width_y_;
-
-    /// @brief Vectors containing the bounds for the CoM
-    Eigen::VectorXd lbCoM_, ubCoM_;
-
-  public:
-    /// @brief Default constructor
-    ///
-    /// @param gain gain of the task
-    TaskKinematicsRectangle(const double gain = 1) : TaskALU("TaskKinematicsRectangle", gain)
-    {
-        setDefaults();
+            getGain() * (bBlocks_ - ABlocks_ * (posSelector * mpc.Ux() * mpc.currentState()));
     }
 
-    /// @brief Forms the matrices A and b to represent the task
-    ///
-    /// @param sol_structure structure of the problems solution
-    /// @param model_base model (can be downcasted dynamically to a specific model type if
-    /// necessary)
-    /// @param control_problem control_problem (can be downcasted dynamically to a specific
-    /// problem type if necessary)
-    void form(const humoto::SolutionStructure &sol_structure, const humoto::Model &model_base,
-              const humoto::ControlProblem &control_problem);
+    double computeHighestFeasibleZ(double x, double y, const Eigen::MatrixXd &A,
+                                   const Eigen::VectorXd &b)
+    {
+        double minZ = 10000000000000;
+        for (long i = 0; i < A.rows(); ++i)
+        {
+            double z_i = (b(i) - A(i, 0) * x - A(i, 1) * y) / A(i, 2);
+            if (z_i < minZ && i != A.rows() - 1 && i != A.rows() / 2 - 1)
+            {
+                minZ = z_i;
+            }
+        }
+        return minZ;
+    }
 };
 
-void TaskKinematicsRectangle::setDefaults()
-{
-    TaskALU::setDefaults();
-    min_height_ = 0.5;
-    max_height_ = 1.0;
-    width_x_ = 0.5;
-    width_y_ = 0.5;
-    setGain(1);
-}
-
-void TaskKinematicsRectangle::finalize() { TaskALU::finalize(); }
-
-void TaskKinematicsRectangle::form(const humoto::SolutionStructure &sol_structure,
-                                   const humoto::Model &model_base,
-                                   const humoto::ControlProblem &control_problem)
-{
-    // Downcast the control problem into a simpleMPC type
-    const humoto::example::MPCVerticalMotion &mpc =
-        dynamic_cast<const humoto::example::MPCVerticalMotion &>(control_problem);
-
-    min_height_ = mpc.pbParams().kinematicLimitZmin_;
-    max_height_ = mpc.pbParams().kinematicLimitZmax_;
-    width_x_ = mpc.pbParams().kinematicLimitXSpan_;
-    width_y_ = mpc.pbParams().kinematicLimitYSpan_;
-
-    // Initialize the matrices A and b
-    Eigen::MatrixXd &A = getA();
-    Eigen::VectorXd &ub = getUpperBounds();
-    Eigen::VectorXd &lb = getLowerBounds();
-
-    long nHorizon = mpc.getPreviewHorizonLength();
-    // Setup the CoM bounds along the preview horizon
-    if (lbCoM_.size() != nHorizon * 3) lbCoM_.resize(3 * nHorizon);
-    if (ubCoM_.size() != nHorizon * 3) ubCoM_.resize(3 * nHorizon);
-    for (long i = 0; i < nHorizon; ++i)
-    {
-        double x = 0.5 * (mpc.stepPlan().xMin()(mpc.currentStepIndex() + i) +
-                          mpc.stepPlan().xMax()(mpc.currentStepIndex() + i));
-        double y = 0.5 * (mpc.stepPlan().yMin()(mpc.currentStepIndex() + i) +
-                          mpc.stepPlan().yMax()(mpc.currentStepIndex() + i));
-        lbCoM_(3 * i + 0) = x - width_x_ / 2.0;
-        ubCoM_(3 * i + 0) = x + width_x_ / 2.0;
-        lbCoM_(3 * i + 1) = y - width_y_ / 2.0;
-        ubCoM_(3 * i + 1) = y + width_y_ / 2.0;
-        lbCoM_(3 * i + 2) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + min_height_;
-        ubCoM_(3 * i + 2) = mpc.stepPlan().z()(mpc.currentStepIndex() + i) + max_height_;
-    }
-
-    // selection matrix that selects only the position terms
-    etools::SelectionMatrix posSelector(3, 0);
-
-    // Compute the A and b matrices
-    A.noalias() = getGain() * (posSelector * mpc.Uu());
-    ub.noalias() = getGain() * (ubCoM_ - posSelector * mpc.Ux() * mpc.currentState());
-    lb.noalias() = getGain() * (lbCoM_ - posSelector * mpc.Ux() * mpc.currentState());
-}
 }
 }

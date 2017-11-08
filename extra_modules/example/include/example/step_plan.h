@@ -23,6 +23,7 @@ namespace example
 struct FootTraj
 {
     Eigen::VectorXd x_, y_, z_, t_;
+    std::vector<bool> supportFoot_;
 
     void resize(int s)
     {
@@ -30,10 +31,16 @@ struct FootTraj
         y_.resize(s);
         z_.resize(s);
         t_.resize(s);
+        supportFoot_.resize(s);
         x_.setZero();
         y_.setZero();
         z_.setZero();
         t_.setZero();
+    }
+    Eigen::Vector3d operator()(long i) const
+    {
+      Eigen::Vector3d pos(x_(i), y_(i), z_(i));
+      return pos;
     }
 };
 
@@ -363,6 +370,7 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
         footTraj.x_[iTimeStep] = steps[iStep].x();
         footTraj.y_[iTimeStep] = steps[iStep].y();
         footTraj.z_[iTimeStep] = steps[iStep].z();
+        footTraj.supportFoot_[iTimeStep] = true;
         iTimeStep++;
         currentTime += dt;
     }
@@ -379,6 +387,10 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
                           time.segment(iTimeStep, nTimeSteps), p.x0[1]);
         p.applyPolynomial(footTraj.z_.segment(iTimeStep, nTimeSteps), p.az,
                           time.segment(iTimeStep, nTimeSteps), p.x0[2]);
+        for(size_t i = 0; i<nTimeSteps; ++i)
+        {
+            footTraj.supportFoot_[iTimeStep + i] = false;
+        }
 
         iTimeStep += nTimeSteps;
         currentTime += nTimeSteps * dt;
@@ -389,6 +401,7 @@ void StepPlan::computeFullFeetTrajectory(FootTraj& footTraj, std::vector<Step> s
             footTraj.x_[iTimeStep] = steps[iStep+1].x();
             footTraj.y_[iTimeStep] = steps[iStep+1].y();
             footTraj.z_[iTimeStep] = steps[iStep+1].z();
+            footTraj.supportFoot_[iTimeStep] = true;
             iTimeStep++;
             currentTime += dt;
         }

@@ -47,20 +47,14 @@ def main(args):
     number_of_steps = args.number_of_steps
     step_length = step_duration*speed
     time_step = args.time_step
-    print("step_length",step_length)
-    print("step_width",step_width)
 
-    rightFootSteps = [stepConfiguration([CoM0[0], CoM0[1]-step_width/2.0, 0.0], 0.0, step_duration-0.01)] 
-    current_time = 2*step_duration
+    rightFootSteps = [stepConfiguration([CoM0[0], CoM0[1]-step_width/2.0, 0.0], 0.0, 2*step_duration-0.01)]
+    current_time = 3*step_duration
     leftFootSteps = [stepConfiguration([CoM0[0], CoM0[1]+step_width/2.0, 0.0], 0.0, current_time-0.01)] 
     yVec = np.array([0,1,0])
     for i in np.arange(number_of_steps):
         latestLeftStep = leftFootSteps[len(leftFootSteps)-1]
-        print("latestLeftStep:", latestLeftStep)
-        print("latestLeftStep.position + step_length + step_width*yVec", latestLeftStep.position + step_length + step_width*yVec)
         newRightStep = stepConfiguration(latestLeftStep.position + step_length - step_width*yVec, current_time - time_step + 0.01, current_time + step_duration -0.01)
-        print("newRightStep", newRightStep)
-        print("newRightStep.position + step_length - step_width*yVec", newRightStep.position + step_length - step_width*yVec)
         newLeftStep = stepConfiguration(newRightStep.position + step_length + step_width*yVec , current_time + step_duration - time_step + 0.01, current_time + 2*step_duration -0.01)
         rightFootSteps.append(newRightStep)
         leftFootSteps.append(newLeftStep)
