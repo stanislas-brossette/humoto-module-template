@@ -101,6 +101,10 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     Eigen::Vector3d comToRightHip_;
     /// @brief Vector from CoM to left hip
     Eigen::Vector3d comToLeftHip_;
+    /// @brief Width of foot along the X direction (forward)
+    double footXwidth_;
+    /// @brief Width of foot along the Y direction (sideway)
+    double footYwidth_;
 
 
   protected:
@@ -131,7 +135,9 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
     HUMOTO_CONFIG_SCALAR_(gainTaskCoPBounds)           \
     HUMOTO_CONFIG_COMPOUND_(soleToAnkle)               \
     HUMOTO_CONFIG_COMPOUND_(comToRightHip)             \
-    HUMOTO_CONFIG_COMPOUND_(comToLeftHip)
+    HUMOTO_CONFIG_COMPOUND_(comToLeftHip)              \
+    HUMOTO_CONFIG_SCALAR_(footXwidth)                  \
+    HUMOTO_CONFIG_SCALAR_(footYwidth)
 #define HUMOTO_CONFIG_CONSTRUCTOR ProblemParameters
 #include HUMOTO_CONFIG_DEFINE_ACCESSORS
 
@@ -163,6 +169,8 @@ class HUMOTO_LOCAL ProblemParameters : public humoto::config::RelaxedConfigurabl
         gainTaskCoPBounds_ = 100;
         gainTaskCoPPosRef_ = 100;
         gainTaskMinJerk_ = 100;
+        footXwidth_ = 0.2;
+        footYwidth_ = 0.1;
         setDefaultStepParameters();
     }
 

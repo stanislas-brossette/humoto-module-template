@@ -178,9 +178,11 @@ class HUMOTO_LOCAL StepPlan
     /// @param rightStepsParameters parameters for all the right foot steps
     /// @param T timestep
     /// @param hStep Additional height reached above the middle point of the straight line between
+    /// @param footXwidth Width of foot along the X direction (forward)
+    /// @param footYwidth Width of foot along the Y direction (sideway)
     StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
              const std::vector<std::vector<double> >& rightStepsParameters, double T,
-             double hStep = 0.4);
+             double hStep = 0.4, double footXwidth = 0.2, double footYwidth = 0.1);
 
     /// @brief Computes the values of xMin, xMax, yMin, yMax, z (Sustentation polygon) for each time
     /// step
@@ -262,14 +264,12 @@ class HUMOTO_LOCAL StepPlan
     double stepXWidth_;
     /// @brief Width of foot along Y
     double stepYWidth_;
-    /// @brief Width of foot along Z
-    double stepZWidth_;
 };
 
 StepPlan::StepPlan(const std::vector<std::vector<double> >& leftStepsParameters,
                    const std::vector<std::vector<double> >& rightStepsParameters, double T,
-                   double hStep)
-    : T_(T), heightSteps_(hStep)
+                   double hStep, double footXwidth, double footYwidth)
+    : T_(T), heightSteps_(hStep), stepXWidth_(footXwidth), stepYWidth_(footYwidth)
 {
     std::cout << "Ctor StepPlan" << std::endl;
     for (size_t i = 0; i < leftStepsParameters.size(); ++i)
@@ -415,9 +415,6 @@ void StepPlan::computePlan(std::vector<Step> leftSteps, std::vector<Step> rightS
     leftSteps_ = leftSteps;
     rightSteps_ = rightSteps;
     tMax_ = leftSteps[0].tMax();
-    stepXWidth_ = 0.2;
-    stepYWidth_ = 0.1;
-    stepZWidth_ = 0.0;
 
     // Find tMax
     for (size_t i = 0; i < leftSteps_.size(); ++i)
