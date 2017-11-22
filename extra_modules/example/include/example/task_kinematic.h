@@ -95,18 +95,11 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
             // Right leg feasibility
             ABlocks_.block(2 * i * cRows, i * cCols, cRows, cCols) = cstr.A;
             bBlocks_.segment(2 * i * cRows, cRows) =
-                cstr.b - cstr.A * (com2rHip - rFootTraj(mpc.currentStepIndex() + i) - s2a);
+                cstr.b - cstr.A * (com2rHip - rFootTraj(mpc.currentStepIndex() + 1 + i) - s2a);
             // Left leg feasibility
             ABlocks_.block((2 * i + 1) * cRows, i * cCols, cRows, cCols) = cstr.A;
             bBlocks_.segment((2 * i + 1) * cRows, cRows) =
-                cstr.b - cstr.A * (com2lHip - lFootTraj(mpc.currentStepIndex() + i) - s2a);
-            if (i == 0)
-            {
-                double maxZ = computeHighestFeasibleZ(mpc.currentState()[0], mpc.currentState()[3],
-                                                      ABlocks_.block(0, 0, 2 * cRows, cCols),
-                                                      bBlocks_.segment(0, 2 * cRows));
-                mpc.logger().addHighestFeasibleZ(maxZ, mpc.currentStepIndex());
-            }
+                cstr.b - cstr.A * (com2lHip - lFootTraj(mpc.currentStepIndex() + 1 + i) - s2a);
         }
 
 
@@ -124,19 +117,33 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
             getGain() * (bBlocks_ - ABlocks_ * (posSelector * mpc.Ux() * mpc.currentState()));
     }
 
-    double computeHighestFeasibleZ(double x, double y, const Eigen::MatrixXd &A,
-                                   const Eigen::VectorXd &b)
+    static void computeAndLogHighestFeasibleZ(const humoto::example::MPCVerticalMotion &mpc,
+                                              const Eigen::Vector3d &CoM, Logger &logger_)
     {
-        double minZ = 10000000000000;
-        for (long i = 0; i < A.rows(); ++i)
-        {
-            double z_i = (b(i) - A(i, 0) * x - A(i, 1) * y) / A(i, 2);
-            if (z_i < minZ && i != A.rows() - 1 && i != A.rows() / 2 - 1)
-            {
-                minZ = z_i;
-            }
-        }
-        return minZ;
+        double maxZ = computeHighestFeasibleZ(mpc, CoM);
+        mpc.logger().addHighestFeasibleZ(maxZ, mpc.currentStepIndex());
+    }
+
+    static double computeHighestFeasibleZ(const humoto::example::MPCVerticalMotion &mpc,
+                                          const Eigen::Vector3d &CoM)
+    {
+        Eigen::Vector3d s2a = mpc.pbParams().soleToAnkle_;
+        Eigen::Vector3d com2rHip = mpc.pbParams().comToRightHip_;
+        Eigen::Vector3d com2lHip = mpc.pbParams().comToLeftHip_;
+        size_t stepIndex = mpc.currentStepIndex();
+
+        Eigen::Vector3d rAnkle = mpc.rightFootTraj()(stepIndex) + s2a;
+        Eigen::Vector3d lAnkle = mpc.leftFootTraj()(stepIndex) + s2a;
+        Eigen::Vector3d rHip = CoM + com2rHip;
+        Eigen::Vector3d lHip = CoM + com2lHip;
+        Eigen::Vector3d rLeg = rHip - rAnkle;
+        Eigen::Vector3d lLeg = lHip - lAnkle;
+        rLeg.z() = std::sqrt(0.6 * 0.6 - rLeg.x() * rLeg.x() - rLeg.y() * rLeg.y());
+        lLeg.z() = std::sqrt(0.6 * 0.6 - lLeg.x() * lLeg.x() - lLeg.y() * lLeg.y());
+        Eigen::Vector3d CoMrLeg = rAnkle + rLeg - com2rHip;
+        Eigen::Vector3d CoMlLeg = lAnkle + lLeg - com2lHip;
+        double maxCoMHeight = std::min(CoMrLeg.z(), CoMlLeg.z());
+        return maxCoMHeight;
     }
 };
 

@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
 
     try
     {
+        humoto::example::TaskKinematicsPolygon::computeAndLogHighestFeasibleZ(
+            mpc, model_state.position_, mpc.logger());
         for (unsigned int i = 0; i < problem_parameters.nIterations_; ++i)
         {
             // if update fails, exit
@@ -83,9 +85,57 @@ int main(int argc, char *argv[])
             // Solve the problem and put the result in solution
             solver.solve(solution, opt_problem);
 
+            {
+                humoto::HierarchyLevel hlvl0, hlvl1;
+                hlvl0 = opt_problem[0];
+                hlvl1 = opt_problem[1];
+
+                humoto::constraints::ContainerAL ineqCstr;
+                const humoto::SolutionStructure &sol_str = mpc.getSolutionStructure();
+                hlvl0.getInequalityConstraints(ineqCstr, sol_str);
+                Eigen::MatrixXd A = ineqCstr.getA();
+                Eigen::VectorXd l = ineqCstr.getLowerBounds();
+
+                Eigen::VectorXd diff = A * solution.x_ - l;
+                for (long i = 0; i < diff.rows(); ++i)
+                    if (diff[i] < -1e-4)
+                        std::cout << "Violated Cstr " << i << ": " << diff[i] << std::endl;
+            }
+
             // Update the model and its state
             model_state = mpc.getNextModelState(solution, model);
             model.updateState(model_state);
+
+            // Check kin cstr nonlinear
+            {
+                humoto::example::TaskKinematicsPolygon::computeAndLogHighestFeasibleZ(
+                    mpc, model_state.position_, mpc.logger());
+                Eigen::Vector3d s2a = mpc.pbParams().soleToAnkle_;
+                Eigen::Vector3d com2rHip = mpc.pbParams().comToRightHip_;
+                Eigen::Vector3d com2lHip = mpc.pbParams().comToLeftHip_;
+                const humoto::example::FootTraj &rFootTraj = mpc.rightFootTraj();
+                const humoto::example::FootTraj &lFootTraj = mpc.leftFootTraj();
+                Eigen::Vector3d CoM = model_state.position_;
+                Eigen::Vector3d rA2rHip =
+                    (CoM + com2rHip) - (rFootTraj(mpc.currentStepIndex()) + s2a);
+                Eigen::Vector3d lA2lHip =
+                    (CoM + com2lHip) - (lFootTraj(mpc.currentStepIndex()) + s2a);
+
+                if (rA2rHip.norm() >= 0.6 || lA2lHip.norm() >= 0.6 || rA2rHip.z() <= 0.37 ||
+                    rA2rHip.z() <= 0.37)
+                {
+                    std::cout << "CHECK KINEMATIC CSTR NONLINEAR:" << std::endl;
+                    std::cout << "mpc.currentStepIndex(): " << mpc.currentStepIndex() << std::endl;
+                }
+                if (rA2rHip.norm() >= 0.6)
+                    std::cout << "rA2rHip.norm(): " << rA2rHip.norm() << "\n" << std::endl;
+                if (lA2lHip.norm() >= 0.6)
+                    std::cout << "lA2lHip.norm(): " << lA2lHip.norm() << "\n" << std::endl;
+                if (rA2rHip.z() <= 0.37)
+                    std::cout << "rA2rHip.z(): " << rA2rHip.z() << "\n" << std::endl;
+                if (rA2rHip.z() <= 0.37)
+                    std::cout << "lA2lHip.z(): " << lA2lHip.z() << "\n" << std::endl;
+            }
         }
     }
     catch (const std::exception &e)
