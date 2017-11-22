@@ -34,14 +34,14 @@ class HUMOTO_LOCAL Logger
           timeStep_(timeStep),
           pbParams_(pbParams)
     {
-        xMin_ = stepPlan.xMin();
-        xMax_ = stepPlan.xMax();
-        yMin_ = stepPlan.yMin();
-        yMax_ = stepPlan.yMax();
-        zMin_ = stepPlan.z();
-        zMax_ = stepPlan.z();
+        xMin_ = stepPlan_.xMin();
+        xMax_ = stepPlan_.xMax();
+        yMin_ = stepPlan_.yMin();
+        yMax_ = stepPlan_.yMax();
+        zMin_ = stepPlan_.z();
+        zMax_ = stepPlan_.z();
         gravity_ = pbParams_.g_;
-        for (long i = 0; i < stepPlan.z().size(); ++i)
+        for (long i = 0; i < stepPlan_.z().size(); ++i)
         {
             zMin_(i) += (pbParams_.zetaZero_ - pbParams_.zetaSpan_ / 2) * gravity_;
             zMax_(i) += (pbParams_.zetaZero_ + pbParams_.zetaSpan_ / 2) * gravity_;

@@ -66,6 +66,10 @@ def writeConstraintToFile(constraint, args):
     myFile = open(args.fileName, 'w')
     myFile.write('#pragma once\n')
     myFile.write('#include <Eigen/Core>\n\n')
+    myFile.write('namespace humoto\n')
+    myFile.write('{\n')
+    myFile.write('namespace example\n')
+    myFile.write('{\n')
     myFile.write('class GeneratedKinematicConstraint\n')
     myFile.write('{\n')
     myFile.write('  public:\n')
@@ -110,7 +114,7 @@ def writeConstraintToFile(constraint, args):
         if i != b.shape[0]-1:
             myFile.write(', ')
     myFile.write(';\n')
-    myFile.write('    }\n};\n')
+    myFile.write('    }\n};\n}\n}\n')
 
 #Computes A and b such that b<Ax if the x is inside the polytope
 def polygonToMatrixConstraint(polygon):

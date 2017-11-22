@@ -47,18 +47,11 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
     Eigen::VectorXd bBlocks_;
     std::string filename_;
 
-    //Eigen::VectorXd xFoot_, yFoot_, zFoot_;
-
-    bool computedABlocks_;
-
   public:
     /// @brief Default constructor
     ///
     /// @param gain gain of the task
-    TaskKinematicsPolygon(const double gain = 1)
-        : TaskAL("TaskKinematicsPolygon", gain), computedABlocks_(false)
-    {
-    }
+    TaskKinematicsPolygon(const double gain = 1) : TaskAL("TaskKinematicsPolygon", gain) {}
 
     /// @brief Forms the matrices A and b to represent the task
     ///
@@ -127,6 +120,7 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
     static double computeHighestFeasibleZ(const humoto::example::MPCVerticalMotion &mpc,
                                           const Eigen::Vector3d &CoM)
     {
+        humoto::example::GeneratedKinematicConstraint genCstr;
         Eigen::Vector3d s2a = mpc.pbParams().soleToAnkle_;
         Eigen::Vector3d com2rHip = mpc.pbParams().comToRightHip_;
         Eigen::Vector3d com2lHip = mpc.pbParams().comToLeftHip_;
@@ -138,8 +132,10 @@ class HUMOTO_LOCAL TaskKinematicsPolygon : public humoto::TaskAL
         Eigen::Vector3d lHip = CoM + com2lHip;
         Eigen::Vector3d rLeg = rHip - rAnkle;
         Eigen::Vector3d lLeg = lHip - lAnkle;
-        rLeg.z() = std::sqrt(0.6 * 0.6 - rLeg.x() * rLeg.x() - rLeg.y() * rLeg.y());
-        lLeg.z() = std::sqrt(0.6 * 0.6 - lLeg.x() * lLeg.x() - lLeg.y() * lLeg.y());
+        rLeg.z() = std::sqrt(genCstr.radius_ * genCstr.radius_ - rLeg.x() * rLeg.x() -
+                             rLeg.y() * rLeg.y());
+        lLeg.z() = std::sqrt(genCstr.radius_ * genCstr.radius_ - lLeg.x() * lLeg.x() -
+                             lLeg.y() * lLeg.y());
         Eigen::Vector3d CoMrLeg = rAnkle + rLeg - com2rHip;
         Eigen::Vector3d CoMlLeg = lAnkle + lLeg - com2lHip;
         double maxCoMHeight = std::min(CoMrLeg.z(), CoMlLeg.z());

@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
             {
                 humoto::example::TaskKinematicsPolygon::computeAndLogHighestFeasibleZ(
                     mpc, model_state.position_, mpc.logger());
+                humoto::example::GeneratedKinematicConstraint generatedCstr;
                 Eigen::Vector3d s2a = mpc.pbParams().soleToAnkle_;
                 Eigen::Vector3d com2rHip = mpc.pbParams().comToRightHip_;
                 Eigen::Vector3d com2lHip = mpc.pbParams().comToLeftHip_;
@@ -121,19 +122,20 @@ int main(int argc, char *argv[])
                 Eigen::Vector3d lA2lHip =
                     (CoM + com2lHip) - (lFootTraj(mpc.currentStepIndex()) + s2a);
 
-                if (rA2rHip.norm() >= 0.6 || lA2lHip.norm() >= 0.6 || rA2rHip.z() <= 0.37 ||
-                    rA2rHip.z() <= 0.37)
+                if (rA2rHip.norm() >= generatedCstr.radius_ ||
+                    lA2lHip.norm() >= generatedCstr.radius_ ||
+                    rA2rHip.z() <= generatedCstr.height_ || rA2rHip.z() <= generatedCstr.height_)
                 {
                     std::cout << "CHECK KINEMATIC CSTR NONLINEAR:" << std::endl;
                     std::cout << "mpc.currentStepIndex(): " << mpc.currentStepIndex() << std::endl;
                 }
-                if (rA2rHip.norm() >= 0.6)
+                if (rA2rHip.norm() >= generatedCstr.radius_)
                     std::cout << "rA2rHip.norm(): " << rA2rHip.norm() << "\n" << std::endl;
-                if (lA2lHip.norm() >= 0.6)
+                if (lA2lHip.norm() >= generatedCstr.radius_)
                     std::cout << "lA2lHip.norm(): " << lA2lHip.norm() << "\n" << std::endl;
-                if (rA2rHip.z() <= 0.37)
+                if (rA2rHip.z() <= generatedCstr.height_)
                     std::cout << "rA2rHip.z(): " << rA2rHip.z() << "\n" << std::endl;
-                if (rA2rHip.z() <= 0.37)
+                if (rA2rHip.z() <= generatedCstr.height_)
                     std::cout << "lA2lHip.z(): " << lA2lHip.z() << "\n" << std::endl;
             }
         }
