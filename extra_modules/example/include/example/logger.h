@@ -275,9 +275,9 @@ class HUMOTO_LOCAL Logger
         logFile << "ax2.plot(x, z, 'b', label='z_CoM = f(x_CoM)')\n";
         logFile << "ax2.plot(x, highestFeasibleZ, '--g', label='z_Max = f(x_CoM)')\n";
         logFile << "ax3.plot(x, y, 'g', label='x_CoM = f(y_CoM)')\n";
-        logFile << "ax1.legend(loc='upper right', shadow=False)\n";
-        logFile << "ax2.legend(loc='upper right', shadow=False)\n";
-        logFile << "ax3.legend(loc='upper right', shadow=False)\n";
+        logFile << "ax1.legend(loc='lower left', shadow=False)\n";
+        logFile << "ax2.legend(loc='lower left', shadow=False)\n";
+        logFile << "ax3.legend(loc='lower left', shadow=False)\n";
         logFile << "plt.show()\n";
         logFile.close();
     }
